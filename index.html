@@ -19,7 +19,9 @@
       --accent: #747d68;
       --accent-soft: #e3e7dd;
       --danger: #9a655e;
+      --danger-soft: #f2e7e4;
       --shadow: 0 16px 45px rgba(73, 64, 52, 0.08);
+      --panel-shadow: -16px 0 45px rgba(73, 64, 52, 0.14);
     }
 
     * {
@@ -53,14 +55,29 @@
         serif;
     }
 
+    body.panel-open {
+      overflow: hidden;
+    }
+
     button,
-    textarea {
+    textarea,
+    input {
       font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    [hidden] {
+      display: none !important;
     }
 
     .app {
       width: min(760px, 100%);
     }
+
+    /* 每日回顾 */
 
     .daily-review {
       position: sticky;
@@ -112,6 +129,8 @@
       color: var(--muted);
     }
 
+    /* 标题与输入框 */
+
     .header {
       margin-bottom: 28px;
       text-align: center;
@@ -155,7 +174,9 @@
       line-height: 1.8;
     }
 
-    #questionInput::placeholder {
+    #questionInput::placeholder,
+    .edit-input::placeholder,
+    #featureInput::placeholder {
       color: #aaa296;
     }
 
@@ -178,7 +199,8 @@
       font-size: 12px;
     }
 
-    .submit-button {
+    .submit-button,
+    .primary-button {
       padding: 9px 17px;
       color: #f9f7f2;
       background: var(--accent);
@@ -190,14 +212,18 @@
         opacity 160ms ease;
     }
 
-    .submit-button:hover {
+    .submit-button:hover,
+    .primary-button:hover {
       opacity: 0.9;
       transform: translateY(-1px);
     }
 
-    .submit-button:active {
+    .submit-button:active,
+    .primary-button:active {
       transform: translateY(0);
     }
+
+    /* 问题列表 */
 
     .section-header {
       display: flex;
@@ -259,6 +285,12 @@
       text-decoration-thickness: 1px;
     }
 
+    .question-item.editing {
+      background: var(--surface);
+      border-color: #c8c0b4;
+      box-shadow: 0 10px 30px rgba(73, 64, 52, 0.06);
+    }
+
     .question-text {
       margin: 0;
       overflow-wrap: anywhere;
@@ -271,7 +303,7 @@
     .question-meta {
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
+      align-items: flex-end;
       justify-content: space-between;
       gap: 14px;
       margin-top: 16px;
@@ -285,14 +317,24 @@
         "Segoe UI",
         sans-serif;
       font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .timestamp-separator {
+      margin: 0 5px;
+      color: #b0a89d;
     }
 
     .actions {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
     }
 
-    .action-button {
+    .action-button,
+    .secondary-button,
+    .data-button,
+    .feature-action-button {
       padding: 7px 11px;
       color: var(--muted);
       background: transparent;
@@ -308,12 +350,23 @@
       transition:
         color 160ms ease,
         background 160ms ease,
-        border-color 160ms ease;
+        border-color 160ms ease,
+        transform 160ms ease;
     }
 
-    .action-button:hover {
+    .action-button:hover,
+    .secondary-button:hover,
+    .data-button:hover,
+    .feature-action-button:hover {
       color: var(--text);
       background: var(--surface-hover);
+    }
+
+    .action-button:active,
+    .secondary-button:active,
+    .data-button:active,
+    .feature-action-button:active {
+      transform: scale(0.97);
     }
 
     .solve-button.active {
@@ -322,10 +375,57 @@
       border-color: #bbc3b0;
     }
 
-    .delete-button:hover {
+    .delete-button:hover,
+    .feature-delete-button:hover {
       color: var(--danger);
-      background: #f2e7e4;
+      background: var(--danger-soft);
       border-color: #d9bbb5;
+    }
+
+    .edit-area {
+      display: grid;
+      gap: 12px;
+    }
+
+    .edit-input {
+      width: 100%;
+      min-height: 120px;
+      padding: 14px 16px;
+      resize: vertical;
+      color: var(--text);
+      caret-color: var(--accent);
+      background: #fffdf9;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      font-size: 17px;
+      line-height: 1.7;
+      transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease;
+    }
+
+    .edit-input:focus,
+    #featureInput:focus {
+      border-color: #aeb6a3;
+      box-shadow: 0 0 0 3px rgba(116, 125, 104, 0.11);
+    }
+
+    .edit-controls {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .save-edit-button {
+      color: #f9f7f2;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .save-edit-button:hover {
+      color: #f9f7f2;
+      background: #68715e;
     }
 
     .empty-state {
@@ -337,6 +437,347 @@
       line-height: 1.8;
     }
 
+    /* 数据导出与导入 */
+
+    .data-tools {
+      margin-top: 34px;
+      padding: 22px 0 4px;
+      text-align: center;
+      border-top: 1px solid rgba(217, 210, 198, 0.75);
+    }
+
+    .data-tools-title {
+      margin: 0 0 13px;
+      color: var(--muted);
+      font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+    }
+
+    .data-tools-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .data-button {
+      padding: 9px 15px;
+      background: rgba(250, 248, 243, 0.65);
+    }
+
+    .data-tools-note {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        sans-serif;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    /* 功能迭代侧边栏 */
+
+    .feature-fab {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 31;
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      color: var(--text);
+      background: rgba(250, 248, 243, 0.96);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      box-shadow: 0 10px 28px rgba(73, 64, 52, 0.16);
+      cursor: pointer;
+      font-size: 22px;
+      transition:
+        transform 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease;
+    }
+
+    .feature-fab:hover {
+      background: #fffdf9;
+      box-shadow: 0 14px 34px rgba(73, 64, 52, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .feature-fab:active {
+      transform: translateY(0) scale(0.96);
+    }
+
+    .panel-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 39;
+      background: rgba(55, 50, 44, 0.22);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease;
+    }
+
+    .panel-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .feature-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 40;
+      width: min(340px, 90vw);
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: #f7f3ec;
+      border-left: 1px solid var(--border);
+      box-shadow: var(--panel-shadow);
+      transform: translateX(105%);
+      visibility: hidden;
+      transition:
+        transform 260ms ease,
+        visibility 260ms ease;
+    }
+
+    .feature-panel.open {
+      visibility: visible;
+      transform: translateX(0);
+    }
+
+    .feature-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 22px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .feature-panel-title {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    .panel-close-button {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        sans-serif;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .panel-close-button:hover {
+      color: var(--text);
+      background: var(--surface-hover);
+      border-color: var(--border);
+    }
+
+    .feature-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .feature-tab {
+      padding: 10px 8px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        sans-serif;
+      font-size: 13px;
+      transition:
+        color 160ms ease,
+        background 160ms ease,
+        border-color 160ms ease;
+    }
+
+    .feature-tab:hover {
+      color: var(--text);
+      background: rgba(250, 248, 243, 0.8);
+    }
+
+    .feature-tab.active {
+      color: var(--text);
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .feature-panel-content {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 18px 16px 28px;
+    }
+
+    .feature-tab-panel {
+      animation: fadeIn 180ms ease both;
+    }
+
+    .feature-intro {
+      margin: 0 2px 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .feature-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    #featureInput {
+      width: 100%;
+      min-height: 140px;
+      padding: 14px 15px;
+      resize: vertical;
+      color: var(--text);
+      caret-color: var(--accent);
+      background: #fffdf9;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      outline: none;
+      font-size: 15px;
+      line-height: 1.7;
+      transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease;
+    }
+
+    .feature-form-footer {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .feature-section + .feature-section {
+      margin-top: 28px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+    }
+
+    .feature-section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 2px 12px;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    .feature-section-count {
+      color: var(--muted);
+      font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .feature-item {
+      padding: 14px;
+      background: rgba(250, 248, 243, 0.78);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+    }
+
+    .feature-item.completed {
+      background: rgba(227, 231, 221, 0.52);
+      border-color: #cbd1c2;
+    }
+
+    .feature-item-text {
+      margin: 0;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .feature-item.completed .feature-item-text {
+      color: #666d5f;
+    }
+
+    .feature-item-date {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        sans-serif;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .feature-item-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .feature-done-button:hover {
+      color: #58634f;
+      background: var(--accent-soft);
+      border-color: #bbc3b0;
+    }
+
+    .feature-empty {
+      padding: 24px 14px;
+      color: var(--muted);
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
     @keyframes appear {
       from {
         opacity: 0;
@@ -346,6 +787,16 @@
       to {
         opacity: 1;
         transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
       }
     }
 
@@ -380,7 +831,47 @@
       }
 
       .question-meta {
-        align-items: flex-end;
+        align-items: flex-start;
+      }
+
+      .actions {
+        width: 100%;
+      }
+
+      .feature-fab {
+        right: 16px;
+        bottom: 16px;
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+      }
+
+      .feature-panel {
+        width: min(340px, 94vw);
+      }
+    }
+
+    @media (max-width: 420px) {
+      .input-footer {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .submit-button {
+        align-self: flex-end;
+      }
+
+      .timestamp {
+        width: 100%;
+      }
+
+      .data-tools-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .data-button {
+        width: 100%;
       }
     }
 
@@ -437,17 +928,164 @@
         有些问题被写下来以后，就已经松动了一点。
       </div>
     </section>
+
+    <footer class="data-tools">
+      <p class="data-tools-title">数据备份</p>
+
+      <div class="data-tools-actions">
+        <button id="exportButton" class="data-button" type="button">
+          📤 导出数据
+        </button>
+
+        <button id="importButton" class="data-button" type="button">
+          📥 导入数据
+        </button>
+      </div>
+
+      <p class="data-tools-note">
+        导入时会与现有问题合并，不会直接覆盖当前数据。
+      </p>
+
+      <input
+        id="importFileInput"
+        type="file"
+        accept=".json,application/json"
+        hidden
+      />
+    </footer>
   </main>
+
+  <button
+    id="featureFab"
+    class="feature-fab"
+    type="button"
+    aria-label="打开功能迭代清单"
+    aria-expanded="false"
+    aria-controls="featurePanel"
+  >
+    📝
+  </button>
+
+  <div id="panelOverlay" class="panel-overlay" aria-hidden="true"></div>
+
+  <aside
+    id="featurePanel"
+    class="feature-panel"
+    aria-labelledby="featurePanelTitle"
+    aria-hidden="true"
+  >
+    <header class="feature-panel-header">
+      <h2 id="featurePanelTitle" class="feature-panel-title">
+        功能迭代清单
+      </h2>
+
+      <button
+        id="panelCloseButton"
+        class="panel-close-button"
+        type="button"
+        aria-label="关闭功能迭代清单"
+      >
+        ×
+      </button>
+    </header>
+
+    <div class="feature-tabs" role="tablist" aria-label="功能迭代清单">
+      <button
+        id="addFeatureTab"
+        class="feature-tab active"
+        type="button"
+        role="tab"
+        aria-selected="true"
+        aria-controls="addFeaturePanel"
+      >
+        ➕ 添加想法
+      </button>
+
+      <button
+        id="featureListTab"
+        class="feature-tab"
+        type="button"
+        role="tab"
+        aria-selected="false"
+        aria-controls="featureListPanel"
+      >
+        📋 愿望列表
+      </button>
+    </div>
+
+    <div class="feature-panel-content">
+      <section
+        id="addFeaturePanel"
+        class="feature-tab-panel"
+        role="tabpanel"
+        aria-labelledby="addFeatureTab"
+      >
+        <p class="feature-intro">
+          先记录下来，不必现在就实现。每个念头都可以成为这个小工具下一次生长的方向。
+        </p>
+
+        <form id="featureForm" class="feature-form">
+          <textarea
+            id="featureInput"
+            placeholder="还希望今日问题盒拥有怎样的功能..."
+            aria-label="输入功能想法"
+            maxlength="1000"
+          ></textarea>
+
+          <div class="feature-form-footer">
+            <button class="primary-button" type="submit">记录</button>
+          </div>
+        </form>
+      </section>
+
+      <section
+        id="featureListPanel"
+        class="feature-tab-panel"
+        role="tabpanel"
+        aria-labelledby="featureListTab"
+        hidden
+      >
+        <section class="feature-section">
+          <h3 class="feature-section-title">
+            <span>等待实现</span>
+            <span id="pendingFeatureCount" class="feature-section-count"></span>
+          </h3>
+
+          <ul id="pendingFeatureList" class="feature-list"></ul>
+
+          <div id="pendingFeatureEmpty" class="feature-empty">
+            还没有等待实现的想法。
+          </div>
+        </section>
+
+        <section class="feature-section">
+          <h3 class="feature-section-title">
+            <span>已实现</span>
+            <span id="completedFeatureCount" class="feature-section-count"></span>
+          </h3>
+
+          <ul id="completedFeatureList" class="feature-list"></ul>
+
+          <div id="completedFeatureEmpty" class="feature-empty">
+            已实现的功能会被收进这里。
+          </div>
+        </section>
+      </section>
+    </div>
+  </aside>
 
   <script>
     (() => {
       "use strict";
 
       /*
-       * 沿用旧版本的存储名称，
-       * 直接替换文件后，之前保存的问题仍会保留。
+       * 当前正式使用的键名。
+       * 同时兼容此前版本使用过的 today-question-box-v1，
+       * 若发现旧数据，会自动迁移并写入 questions。
        */
-      const STORAGE_KEY = "today-question-box-v1";
+      const STORAGE_KEY = "questions";
+      const LEGACY_STORAGE_KEYS = ["today-question-box-v1"];
+      const FEATURE_STORAGE_KEY = "feature_backlog";
 
       const form = document.getElementById("questionForm");
       const input = document.getElementById("questionInput");
@@ -457,64 +1095,77 @@
       const reviewQuestion = document.getElementById("reviewQuestion");
       const reviewNote = document.getElementById("reviewNote");
 
+      const exportButton = document.getElementById("exportButton");
+      const importButton = document.getElementById("importButton");
+      const importFileInput = document.getElementById("importFileInput");
+
+      const featureFab = document.getElementById("featureFab");
+      const featurePanel = document.getElementById("featurePanel");
+      const panelOverlay = document.getElementById("panelOverlay");
+      const panelCloseButton = document.getElementById("panelCloseButton");
+
+      const addFeatureTab = document.getElementById("addFeatureTab");
+      const featureListTab = document.getElementById("featureListTab");
+      const addFeaturePanel = document.getElementById("addFeaturePanel");
+      const featureListPanel = document.getElementById("featureListPanel");
+
+      const featureForm = document.getElementById("featureForm");
+      const featureInput = document.getElementById("featureInput");
+      const pendingFeatureList =
+        document.getElementById("pendingFeatureList");
+      const completedFeatureList =
+        document.getElementById("completedFeatureList");
+      const pendingFeatureEmpty =
+        document.getElementById("pendingFeatureEmpty");
+      const completedFeatureEmpty =
+        document.getElementById("completedFeatureEmpty");
+      const pendingFeatureCount =
+        document.getElementById("pendingFeatureCount");
+      const completedFeatureCount =
+        document.getElementById("completedFeatureCount");
+
       let questions = loadQuestions();
+      let featureBacklog = loadFeatureBacklog();
       let reviewQuestionId = chooseRandomQuestionId();
+      let editingQuestionId = null;
+      let activeFeatureTab = "add";
 
-      function loadQuestions() {
-        try {
-          const saved = localStorage.getItem(STORAGE_KEY);
-          const parsed = saved ? JSON.parse(saved) : [];
-
-          if (!Array.isArray(parsed)) {
-            return [];
-          }
-
-          return parsed
-            .filter(
-              (item) =>
-                item &&
-                typeof item.id === "string" &&
-                typeof item.text === "string" &&
-                typeof item.createdAt === "string"
-            )
-            .map((item) => ({
-              ...item,
-              solved: Boolean(item.solved)
-            }));
-        } catch (error) {
-          console.warn("读取本地问题失败：", error);
-          return [];
+      function createId(prefix = "item") {
+        if (
+          window.crypto &&
+          typeof window.crypto.randomUUID === "function"
+        ) {
+          return `${prefix}-${window.crypto.randomUUID()}`;
         }
+
+        return `${prefix}-${Date.now()}-${Math.random()
+          .toString(16)
+          .slice(2)}`;
       }
 
-      function saveQuestions() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(questions));
-        } catch (error) {
-          console.warn("保存本地问题失败：", error);
-        }
-      }
-
-      function chooseRandomQuestionId() {
-        if (questions.length === 0) {
+      function parseDate(value) {
+        if (value === null || value === undefined || value === "") {
           return null;
         }
 
-        const randomIndex = Math.floor(Math.random() * questions.length);
-        return questions[randomIndex].id;
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? null : date;
       }
 
-      function createId() {
-        if (window.crypto && typeof window.crypto.randomUUID === "function") {
-          return window.crypto.randomUUID();
+      function normalizeDate(value, fallbackValue) {
+        const parsed = parseDate(value);
+
+        if (parsed) {
+          return parsed.toISOString();
         }
 
-        return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-      }
+        const fallbackDate = parseDate(fallbackValue);
 
-      function parseDate(isoString) {
-        const date = new Date(isoString);
-        return Number.isNaN(date.getTime()) ? null : date;
+        if (fallbackDate) {
+          return fallbackDate.toISOString();
+        }
+
+        return new Date().toISOString();
       }
 
       function formatTime(isoString) {
@@ -534,7 +1185,7 @@
         }).format(date);
       }
 
-      function formatReviewDate(isoString) {
+      function formatDate(isoString) {
         const date = parseDate(isoString);
 
         if (!date) {
@@ -546,6 +1197,266 @@
           month: "long",
           day: "numeric"
         }).format(date);
+      }
+
+      function formatBackupDate(date = new Date()) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        return `${year}${month}${day}`;
+      }
+
+      function safeParseJSON(rawValue) {
+        if (!rawValue) {
+          return null;
+        }
+
+        try {
+          return JSON.parse(rawValue);
+        } catch (error) {
+          console.warn("JSON 数据解析失败：", error);
+          return null;
+        }
+      }
+
+      function extractQuestionArray(data) {
+        if (Array.isArray(data)) {
+          return data;
+        }
+
+        if (!data || typeof data !== "object") {
+          return null;
+        }
+
+        if (Array.isArray(data.questions)) {
+          return data.questions;
+        }
+
+        if (Array.isArray(data.data)) {
+          return data.data;
+        }
+
+        if (Array.isArray(data.items)) {
+          return data.items;
+        }
+
+        return null;
+      }
+
+      function normalizeQuestion(item) {
+        if (typeof item === "string") {
+          const now = new Date().toISOString();
+
+          return {
+            id: createId("question"),
+            text: item.trim(),
+            createdAt: now,
+            updatedAt: now,
+            solved: false
+          };
+        }
+
+        if (!item || typeof item !== "object") {
+          return null;
+        }
+
+        const rawText =
+          item.text ??
+          item.question ??
+          item.content ??
+          item.title ??
+          "";
+
+        const text = String(rawText).trim();
+
+        if (!text) {
+          return null;
+        }
+
+        /*
+         * 旧数据没有 createdAt 时，
+         * 优先将 date 字段作为原始创建时间。
+         */
+        const rawCreatedAt =
+          item.createdAt ??
+          item.created_at ??
+          item.date ??
+          item.timestamp ??
+          item.time;
+
+        const createdAt = normalizeDate(
+          rawCreatedAt,
+          new Date().toISOString()
+        );
+
+        const rawUpdatedAt =
+          item.updatedAt ??
+          item.updated_at ??
+          item.modifiedAt ??
+          item.modified_at ??
+          createdAt;
+
+        const updatedAt = normalizeDate(rawUpdatedAt, createdAt);
+
+        const solved =
+          typeof item.solved === "boolean"
+            ? item.solved
+            : typeof item.resolved === "boolean"
+              ? item.resolved
+              : item.status === "solved" ||
+                item.status === "resolved" ||
+                item.status === "done";
+
+        return {
+          id:
+            item.id !== null && item.id !== undefined
+              ? String(item.id)
+              : createId("question"),
+          text,
+          createdAt,
+          updatedAt,
+          solved: Boolean(solved)
+        };
+      }
+
+      function getQuestionFingerprint(question) {
+        return `${question.text.trim()}__${question.createdAt}`;
+      }
+
+      function mergeQuestionCollections(existing, incoming) {
+        const merged = [];
+        const indexById = new Map();
+        const fingerprints = new Set();
+
+        function addOrMerge(question) {
+          if (!question) {
+            return;
+          }
+
+          const existingIndex = indexById.get(question.id);
+          const fingerprint = getQuestionFingerprint(question);
+
+          if (existingIndex !== undefined) {
+            const current = merged[existingIndex];
+            const currentUpdated =
+              parseDate(current.updatedAt)?.getTime() || 0;
+            const incomingUpdated =
+              parseDate(question.updatedAt)?.getTime() || 0;
+
+            if (incomingUpdated > currentUpdated) {
+              merged[existingIndex] = question;
+              fingerprints.add(fingerprint);
+            }
+
+            return;
+          }
+
+          if (fingerprints.has(fingerprint)) {
+            return;
+          }
+
+          indexById.set(question.id, merged.length);
+          fingerprints.add(fingerprint);
+          merged.push(question);
+        }
+
+        existing.forEach(addOrMerge);
+        incoming.forEach(addOrMerge);
+
+        return merged.sort((a, b) => {
+          const timeA = parseDate(a.createdAt)?.getTime() || 0;
+          const timeB = parseDate(b.createdAt)?.getTime() || 0;
+          return timeB - timeA;
+        });
+      }
+
+      function loadQuestions() {
+        const collections = [];
+        let shouldMigrate = false;
+
+        const primaryRaw = localStorage.getItem(STORAGE_KEY);
+        const primaryData = safeParseJSON(primaryRaw);
+        const primaryArray = extractQuestionArray(primaryData);
+
+        if (primaryArray) {
+          collections.push(primaryArray);
+        }
+
+        LEGACY_STORAGE_KEYS.forEach((legacyKey) => {
+          const legacyRaw = localStorage.getItem(legacyKey);
+          const legacyData = safeParseJSON(legacyRaw);
+          const legacyArray = extractQuestionArray(legacyData);
+
+          if (legacyArray) {
+            collections.push(legacyArray);
+            shouldMigrate = true;
+          }
+        });
+
+        const normalizedCollections = collections.flatMap((collection) =>
+          collection
+            .map(normalizeQuestion)
+            .filter((question) => question !== null)
+        );
+
+        const merged = mergeQuestionCollections(
+          [],
+          normalizedCollections
+        );
+
+        /*
+         * 统一写入 questions，旧键不会被删除。
+         * 即使旧版本字段不完整，也会被规范化。
+         */
+        if (
+          shouldMigrate ||
+          primaryRaw !== JSON.stringify(merged)
+        ) {
+          try {
+            localStorage.setItem(
+              STORAGE_KEY,
+              JSON.stringify(merged)
+            );
+          } catch (error) {
+            console.warn("迁移问题数据失败：", error);
+          }
+        }
+
+        return merged;
+      }
+
+      function saveQuestions() {
+        try {
+          localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(questions)
+          );
+        } catch (error) {
+          console.warn("保存问题失败：", error);
+          alert("数据保存失败，请检查浏览器的本地存储权限。");
+        }
+      }
+
+      function chooseRandomQuestionId() {
+        if (questions.length === 0) {
+          return null;
+        }
+
+        const randomIndex = Math.floor(
+          Math.random() * questions.length
+        );
+
+        return questions[randomIndex].id;
+      }
+
+      function hasBeenEdited(question) {
+        const createdTime =
+          parseDate(question.createdAt)?.getTime() || 0;
+        const updatedTime =
+          parseDate(question.updatedAt)?.getTime() || 0;
+
+        return updatedTime > createdTime;
       }
 
       function renderDailyReview() {
@@ -564,7 +1475,7 @@
 
         /*
          * 如果正在回顾的问题被删除，
-         * 就从剩余问题中重新随机选择一条。
+         * 从剩余问题中重新随机选择。
          */
         if (!question) {
           reviewQuestionId = chooseRandomQuestionId();
@@ -577,7 +1488,11 @@
           return;
         }
 
-        const dateText = formatReviewDate(question.createdAt);
+        /*
+         * 每日回顾始终使用 createdAt，
+         * 编辑不会改变这里展示的原始记录日期。
+         */
+        const dateText = formatDate(question.createdAt);
 
         reviewQuestion.classList.remove("review-empty");
         reviewQuestion.textContent = `“${question.text}”`;
@@ -593,18 +1508,18 @@
           return;
         }
 
+        const now = new Date().toISOString();
+
         const newQuestion = {
-          id: createId(),
+          id: createId("question"),
           text: cleanedText,
-          createdAt: new Date().toISOString(),
+          createdAt: now,
+          updatedAt: now,
           solved: false
         };
 
         questions.unshift(newQuestion);
 
-        /*
-         * 盒子原本为空时，把第一个问题同步放进每日回顾。
-         */
         if (!reviewQuestionId) {
           reviewQuestionId = newQuestion.id;
         }
@@ -630,10 +1545,61 @@
         render();
       }
 
+      function startEditingQuestion(id) {
+        editingQuestionId = id;
+        renderQuestionList();
+
+        window.requestAnimationFrame(() => {
+          const editInput = document.querySelector(
+            `[data-edit-question-id="${CSS.escape(id)}"]`
+          );
+
+          if (editInput) {
+            editInput.focus();
+            editInput.setSelectionRange(
+              editInput.value.length,
+              editInput.value.length
+            );
+          }
+        });
+      }
+
+      function cancelEditingQuestion() {
+        editingQuestionId = null;
+        renderQuestionList();
+      }
+
+      function saveQuestionEdit(id, newText) {
+        const cleanedText = newText.trim();
+
+        if (!cleanedText) {
+          alert("问题内容不能为空。");
+          return;
+        }
+
+        questions = questions.map((question) =>
+          question.id === id
+            ? {
+                ...question,
+                text: cleanedText,
+                updatedAt: new Date().toISOString()
+              }
+            : question
+        );
+
+        editingQuestionId = null;
+        saveQuestions();
+        render();
+      }
+
       function deleteQuestion(id) {
         questions = questions.filter(
           (question) => question.id !== id
         );
+
+        if (editingQuestionId === id) {
+          editingQuestionId = null;
+        }
 
         if (reviewQuestionId === id) {
           reviewQuestionId = chooseRandomQuestionId();
@@ -641,6 +1607,157 @@
 
         saveQuestions();
         render();
+      }
+
+      function createTimestampElement(question) {
+        const timestamp = document.createElement("div");
+        timestamp.className = "timestamp";
+
+        const createdText = document.createElement("span");
+        createdText.textContent =
+          `创建于 ${formatTime(question.createdAt)}`;
+
+        timestamp.append(createdText);
+
+        if (hasBeenEdited(question)) {
+          const separator = document.createElement("span");
+          separator.className = "timestamp-separator";
+          separator.textContent = "|";
+
+          const updatedText = document.createElement("span");
+          updatedText.textContent =
+            `最后编辑于 ${formatTime(question.updatedAt)}`;
+
+          timestamp.append(separator, updatedText);
+        }
+
+        return timestamp;
+      }
+
+      function createNormalQuestionContent(question, item) {
+        const text = document.createElement("p");
+        text.className = "question-text";
+        text.textContent = question.text;
+
+        const meta = document.createElement("div");
+        meta.className = "question-meta";
+
+        const timestamp = createTimestampElement(question);
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const solveButton = document.createElement("button");
+        solveButton.type = "button";
+        solveButton.className =
+          `action-button solve-button${question.solved ? " active" : ""}`;
+        solveButton.textContent =
+          question.solved ? "重新打开" : "已解决";
+        solveButton.setAttribute(
+          "aria-label",
+          question.solved
+            ? "将问题重新标记为未解决"
+            : "将问题标记为已解决"
+        );
+
+        solveButton.addEventListener("click", () => {
+          toggleSolved(question.id);
+        });
+
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.className = "action-button edit-button";
+        editButton.textContent = "编辑";
+        editButton.setAttribute("aria-label", "编辑这个问题");
+
+        editButton.addEventListener("click", () => {
+          startEditingQuestion(question.id);
+        });
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className =
+          "action-button delete-button";
+        deleteButton.textContent = "删除";
+        deleteButton.setAttribute("aria-label", "删除这个问题");
+
+        deleteButton.addEventListener("click", () => {
+          deleteQuestion(question.id);
+        });
+
+        actions.append(
+          solveButton,
+          editButton,
+          deleteButton
+        );
+
+        meta.append(timestamp, actions);
+        item.append(text, meta);
+      }
+
+      function createEditingQuestionContent(question, item) {
+        item.classList.add("editing");
+
+        const editArea = document.createElement("div");
+        editArea.className = "edit-area";
+
+        const editInput = document.createElement("textarea");
+        editInput.className = "edit-input";
+        editInput.value = question.text;
+        editInput.maxLength = 1000;
+        editInput.setAttribute(
+          "aria-label",
+          "编辑问题内容"
+        );
+        editInput.dataset.editQuestionId = question.id;
+
+        const controls = document.createElement("div");
+        controls.className = "edit-controls";
+
+        const cancelButton = document.createElement("button");
+        cancelButton.type = "button";
+        cancelButton.className =
+          "secondary-button cancel-edit-button";
+        cancelButton.textContent = "取消";
+
+        cancelButton.addEventListener("click", () => {
+          cancelEditingQuestion();
+        });
+
+        const saveButton = document.createElement("button");
+        saveButton.type = "button";
+        saveButton.className =
+          "secondary-button save-edit-button";
+        saveButton.textContent = "保存";
+
+        saveButton.addEventListener("click", () => {
+          saveQuestionEdit(question.id, editInput.value);
+        });
+
+        editInput.addEventListener("keydown", (event) => {
+          if (
+            event.key === "Enter" &&
+            (event.ctrlKey || event.metaKey) &&
+            !event.isComposing
+          ) {
+            event.preventDefault();
+            saveQuestionEdit(question.id, editInput.value);
+          }
+
+          if (event.key === "Escape") {
+            event.preventDefault();
+            cancelEditingQuestion();
+          }
+        });
+
+        controls.append(cancelButton, saveButton);
+        editArea.append(editInput, controls);
+
+        const meta = document.createElement("div");
+        meta.className = "question-meta";
+        meta.append(createTimestampElement(question));
+
+        item.append(editArea, meta);
       }
 
       function renderQuestionList() {
@@ -654,51 +1771,12 @@
           item.className =
             `question-item${question.solved ? " solved" : ""}`;
 
-          const text = document.createElement("p");
-          text.className = "question-text";
-          text.textContent = question.text;
+          if (editingQuestionId === question.id) {
+            createEditingQuestionContent(question, item);
+          } else {
+            createNormalQuestionContent(question, item);
+          }
 
-          const meta = document.createElement("div");
-          meta.className = "question-meta";
-
-          const timestamp = document.createElement("time");
-          timestamp.className = "timestamp";
-          timestamp.dateTime = question.createdAt;
-          timestamp.textContent = formatTime(question.createdAt);
-
-          const actions = document.createElement("div");
-          actions.className = "actions";
-
-          const solveButton = document.createElement("button");
-          solveButton.type = "button";
-          solveButton.className =
-            `action-button solve-button${question.solved ? " active" : ""}`;
-          solveButton.textContent =
-            question.solved ? "重新打开" : "已解决";
-          solveButton.setAttribute(
-            "aria-label",
-            question.solved
-              ? "将问题重新标记为未解决"
-              : "将问题标记为已解决"
-          );
-
-          solveButton.addEventListener("click", () => {
-            toggleSolved(question.id);
-          });
-
-          const deleteButton = document.createElement("button");
-          deleteButton.type = "button";
-          deleteButton.className = "action-button delete-button";
-          deleteButton.textContent = "删除";
-          deleteButton.setAttribute("aria-label", "删除这个问题");
-
-          deleteButton.addEventListener("click", () => {
-            deleteQuestion(question.id);
-          });
-
-          actions.append(solveButton, deleteButton);
-          meta.append(timestamp, actions);
-          item.append(text, meta);
           list.append(item);
         });
       }
@@ -707,6 +1785,410 @@
         renderDailyReview();
         renderQuestionList();
       }
+
+      /* 数据导出与导入 */
+
+      function exportQuestionData() {
+        const backup = {
+          app: "今日问题盒",
+          version: 2,
+          exportedAt: new Date().toISOString(),
+          questions
+        };
+
+        const json = JSON.stringify(backup, null, 2);
+        const blob = new Blob([json], {
+          type: "application/json;charset=utf-8"
+        });
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download =
+          `question-box-backup-${formatBackupDate()}.json`;
+
+        document.body.append(link);
+        link.click();
+        link.remove();
+
+        window.setTimeout(() => {
+          URL.revokeObjectURL(url);
+        }, 0);
+      }
+
+      async function importQuestionData(file) {
+        try {
+          const fileText = await file.text();
+          const parsed = JSON.parse(fileText);
+          const importedArray = extractQuestionArray(parsed);
+
+          if (!importedArray) {
+            throw new Error("未找到有效的问题列表");
+          }
+
+          const normalizedImported = importedArray
+            .map(normalizeQuestion)
+            .filter((question) => question !== null);
+
+          if (normalizedImported.length === 0) {
+            alert("文件中没有可以导入的问题。");
+            return;
+          }
+
+          const originalCount = questions.length;
+
+          questions = mergeQuestionCollections(
+            questions,
+            normalizedImported
+          );
+
+          const addedCount = questions.length - originalCount;
+
+          saveQuestions();
+          render();
+
+          alert(
+            addedCount > 0
+              ? `导入完成，新增 ${addedCount} 条问题。`
+              : "导入完成，没有发现新的问题。"
+          );
+        } catch (error) {
+          console.error("导入问题数据失败：", error);
+          alert(
+            "导入失败。请确认所选文件是有效的 JSON 备份文件。"
+          );
+        } finally {
+          importFileInput.value = "";
+        }
+      }
+
+      /* 功能迭代清单 */
+
+      function extractFeatureArray(data) {
+        if (Array.isArray(data)) {
+          return data;
+        }
+
+        if (!data || typeof data !== "object") {
+          return [];
+        }
+
+        if (Array.isArray(data.items)) {
+          return data.items;
+        }
+
+        if (Array.isArray(data.features)) {
+          return data.features;
+        }
+
+        if (Array.isArray(data.backlog)) {
+          return data.backlog;
+        }
+
+        return [];
+      }
+
+      function normalizeFeatureItem(item) {
+        if (typeof item === "string") {
+          return {
+            id: createId("feature"),
+            text: item.trim(),
+            createdAt: new Date().toISOString(),
+            status: "pending",
+            completedAt: null
+          };
+        }
+
+        if (!item || typeof item !== "object") {
+          return null;
+        }
+
+        const text = String(
+          item.text ??
+          item.description ??
+          item.idea ??
+          item.content ??
+          ""
+        ).trim();
+
+        if (!text) {
+          return null;
+        }
+
+        const createdAt = normalizeDate(
+          item.createdAt ??
+          item.created_at ??
+          item.date ??
+          item.timestamp,
+          new Date().toISOString()
+        );
+
+        const isCompleted =
+          item.status === "completed" ||
+          item.status === "done" ||
+          item.completed === true ||
+          item.implemented === true;
+
+        const completedAt = isCompleted
+          ? normalizeDate(
+              item.completedAt ??
+              item.completed_at ??
+              item.implementedAt ??
+              item.finishedAt,
+              createdAt
+            )
+          : null;
+
+        return {
+          id:
+            item.id !== null && item.id !== undefined
+              ? String(item.id)
+              : createId("feature"),
+          text,
+          createdAt,
+          status: isCompleted ? "completed" : "pending",
+          completedAt
+        };
+      }
+
+      function loadFeatureBacklog() {
+        const raw = localStorage.getItem(FEATURE_STORAGE_KEY);
+        const parsed = safeParseJSON(raw);
+        const items = extractFeatureArray(parsed);
+
+        return items
+          .map(normalizeFeatureItem)
+          .filter((item) => item !== null)
+          .sort((a, b) => {
+            const timeA =
+              parseDate(a.createdAt)?.getTime() || 0;
+            const timeB =
+              parseDate(b.createdAt)?.getTime() || 0;
+
+            return timeB - timeA;
+          });
+      }
+
+      function saveFeatureBacklog() {
+        try {
+          localStorage.setItem(
+            FEATURE_STORAGE_KEY,
+            JSON.stringify(featureBacklog)
+          );
+        } catch (error) {
+          console.warn("保存功能迭代清单失败：", error);
+          alert("功能想法保存失败，请检查本地存储权限。");
+        }
+      }
+
+      function addFeatureIdea(text) {
+        const cleanedText = text.trim();
+
+        if (!cleanedText) {
+          featureInput.focus();
+          return;
+        }
+
+        featureBacklog.unshift({
+          id: createId("feature"),
+          text: cleanedText,
+          createdAt: new Date().toISOString(),
+          status: "pending",
+          completedAt: null
+        });
+
+        saveFeatureBacklog();
+        renderFeatureBacklog();
+
+        featureInput.value = "";
+        setActiveFeatureTab("list");
+      }
+
+      function completeFeatureIdea(id) {
+        featureBacklog = featureBacklog.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                status: "completed",
+                completedAt: new Date().toISOString()
+              }
+            : item
+        );
+
+        saveFeatureBacklog();
+        renderFeatureBacklog();
+      }
+
+      function deleteFeatureIdea(id) {
+        const confirmed = window.confirm(
+          "确定永久删除这条想法吗？"
+        );
+
+        if (!confirmed) {
+          return;
+        }
+
+        featureBacklog = featureBacklog.filter(
+          (item) => item.id !== id
+        );
+
+        saveFeatureBacklog();
+        renderFeatureBacklog();
+      }
+
+      function createFeatureItem(item) {
+        const listItem = document.createElement("li");
+        listItem.className =
+          `feature-item${item.status === "completed" ? " completed" : ""}`;
+
+        const text = document.createElement("p");
+        text.className = "feature-item-text";
+        text.textContent = item.text;
+
+        const date = document.createElement("p");
+        date.className = "feature-item-date";
+
+        if (item.status === "completed") {
+          date.textContent =
+            `记录于 ${formatDate(item.createdAt)} · ` +
+            `实现于 ${formatDate(item.completedAt)}`;
+        } else {
+          date.textContent =
+            `记录于 ${formatDate(item.createdAt)}`;
+        }
+
+        const actions = document.createElement("div");
+        actions.className = "feature-item-actions";
+
+        if (item.status !== "completed") {
+          const doneButton = document.createElement("button");
+          doneButton.type = "button";
+          doneButton.className =
+            "feature-action-button feature-done-button";
+          doneButton.textContent = "✅ 已实现";
+
+          doneButton.addEventListener("click", () => {
+            completeFeatureIdea(item.id);
+          });
+
+          actions.append(doneButton);
+        }
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className =
+          "feature-action-button feature-delete-button";
+        deleteButton.textContent = "🗑️ 删除";
+
+        deleteButton.addEventListener("click", () => {
+          deleteFeatureIdea(item.id);
+        });
+
+        actions.append(deleteButton);
+        listItem.append(text, date, actions);
+
+        return listItem;
+      }
+
+      function renderFeatureBacklog() {
+        const pendingItems = featureBacklog.filter(
+          (item) => item.status !== "completed"
+        );
+
+        const completedItems = featureBacklog.filter(
+          (item) => item.status === "completed"
+        );
+
+        pendingFeatureList.replaceChildren();
+        completedFeatureList.replaceChildren();
+
+        pendingItems.forEach((item) => {
+          pendingFeatureList.append(createFeatureItem(item));
+        });
+
+        completedItems.forEach((item) => {
+          completedFeatureList.append(createFeatureItem(item));
+        });
+
+        pendingFeatureEmpty.hidden = pendingItems.length > 0;
+        completedFeatureEmpty.hidden =
+          completedItems.length > 0;
+
+        pendingFeatureCount.textContent =
+          `${pendingItems.length} 条`;
+
+        completedFeatureCount.textContent =
+          `${completedItems.length} 条`;
+      }
+
+      function setActiveFeatureTab(tabName) {
+        activeFeatureTab = tabName;
+
+        const isAddTab = tabName === "add";
+
+        addFeatureTab.classList.toggle("active", isAddTab);
+        featureListTab.classList.toggle(
+          "active",
+          !isAddTab
+        );
+
+        addFeatureTab.setAttribute(
+          "aria-selected",
+          String(isAddTab)
+        );
+
+        featureListTab.setAttribute(
+          "aria-selected",
+          String(!isAddTab)
+        );
+
+        addFeaturePanel.hidden = !isAddTab;
+        featureListPanel.hidden = isAddTab;
+
+        if (isAddTab) {
+          window.requestAnimationFrame(() => {
+            featureInput.focus();
+          });
+        }
+      }
+
+      function setFeaturePanelOpen(open) {
+        featurePanel.classList.toggle("open", open);
+        panelOverlay.classList.toggle("open", open);
+        document.body.classList.toggle("panel-open", open);
+
+        featurePanel.setAttribute(
+          "aria-hidden",
+          String(!open)
+        );
+
+        panelOverlay.setAttribute(
+          "aria-hidden",
+          String(!open)
+        );
+
+        featureFab.setAttribute(
+          "aria-expanded",
+          String(open)
+        );
+
+        if (open) {
+          renderFeatureBacklog();
+
+          window.requestAnimationFrame(() => {
+            if (activeFeatureTab === "add") {
+              featureInput.focus();
+            } else {
+              panelCloseButton.focus();
+            }
+          });
+        } else {
+          featureFab.focus();
+        }
+      }
+
+      /* 事件绑定 */
 
       form.addEventListener("submit", (event) => {
         event.preventDefault();
@@ -724,7 +2206,83 @@
         }
       });
 
+      exportButton.addEventListener("click", () => {
+        exportQuestionData();
+      });
+
+      importButton.addEventListener("click", () => {
+        const confirmed = window.confirm(
+          "导入将合并数据，确定吗？"
+        );
+
+        if (!confirmed) {
+          return;
+        }
+
+        importFileInput.value = "";
+        importFileInput.click();
+      });
+
+      importFileInput.addEventListener(
+        "change",
+        async (event) => {
+          const file = event.target.files?.[0];
+
+          if (!file) {
+            return;
+          }
+
+          await importQuestionData(file);
+        }
+      );
+
+      featureFab.addEventListener("click", () => {
+        setFeaturePanelOpen(true);
+      });
+
+      panelCloseButton.addEventListener("click", () => {
+        setFeaturePanelOpen(false);
+      });
+
+      panelOverlay.addEventListener("click", () => {
+        setFeaturePanelOpen(false);
+      });
+
+      addFeatureTab.addEventListener("click", () => {
+        setActiveFeatureTab("add");
+      });
+
+      featureListTab.addEventListener("click", () => {
+        setActiveFeatureTab("list");
+      });
+
+      featureForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        addFeatureIdea(featureInput.value);
+      });
+
+      featureInput.addEventListener("keydown", (event) => {
+        if (
+          event.key === "Enter" &&
+          (event.ctrlKey || event.metaKey) &&
+          !event.isComposing
+        ) {
+          event.preventDefault();
+          addFeatureIdea(featureInput.value);
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (
+          event.key === "Escape" &&
+          featurePanel.classList.contains("open")
+        ) {
+          setFeaturePanelOpen(false);
+        }
+      });
+
       render();
+      renderFeatureBacklog();
     })();
   </script>
 </body>
