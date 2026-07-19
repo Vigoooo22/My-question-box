@@ -4,12 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="light" />
-  <title>今日问题盒</title>
+  <title>今日问题盒 · v3.0</title>
 
   <style>
     :root {
       --background: #f4f0e8;
       --surface: #faf8f3;
+      --surface-strong: #fffdf9;
       --surface-hover: #f0ece4;
       --review-background: #e9e4dc;
       --review-border: #d5cec2;
@@ -17,9 +18,15 @@
       --muted: #8a8378;
       --border: #d9d2c6;
       --accent: #747d68;
+      --accent-dark: #626b58;
       --accent-soft: #e3e7dd;
       --danger: #9a655e;
       --danger-soft: #f2e7e4;
+      --blue-soft: #e4edf0;
+      --green-soft: #e5ece1;
+      --yellow-soft: #f2ead3;
+      --rose-soft: #f1e2df;
+      --violet-soft: #eae4ef;
       --shadow: 0 16px 45px rgba(73, 64, 52, 0.08);
       --panel-shadow: -16px 0 45px rgba(73, 64, 52, 0.14);
     }
@@ -30,21 +37,18 @@
 
     html {
       min-height: 100%;
+      scroll-behavior: smooth;
     }
 
     body {
       min-height: 100vh;
       margin: 0;
-      padding: 0 20px 48px;
+      padding: 0 20px 64px;
       display: flex;
       justify-content: center;
       color: var(--text);
       background:
-        radial-gradient(
-          circle at top,
-          rgba(255, 255, 255, 0.75),
-          transparent 42%
-        ),
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.75), transparent 42%),
         var(--background);
       font-family:
         "Noto Serif SC",
@@ -74,16 +78,14 @@
     }
 
     .app {
-      width: min(760px, 100%);
+      width: min(800px, 100%);
     }
-
-    /* 每日回顾 */
 
     .daily-review {
       position: sticky;
       top: 0;
       z-index: 10;
-      margin-bottom: 44px;
+      margin-bottom: 36px;
       padding: 20px 24px;
       background: rgba(233, 228, 220, 0.96);
       border: 1px solid var(--review-border);
@@ -96,11 +98,7 @@
     .review-label {
       margin: 0 0 12px;
       color: var(--muted);
-      font-family:
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       font-size: 12px;
       letter-spacing: 0.16em;
     }
@@ -116,11 +114,7 @@
     .review-note {
       margin: 10px 0 0;
       color: var(--muted);
-      font-family:
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       font-size: 13px;
       line-height: 1.6;
     }
@@ -128,8 +122,6 @@
     .review-empty {
       color: var(--muted);
     }
-
-    /* 标题与输入框 */
 
     .header {
       margin-bottom: 28px;
@@ -148,6 +140,15 @@
       color: var(--muted);
       font-size: 14px;
       letter-spacing: 0.08em;
+    }
+
+    .version-mark {
+      margin-left: 7px;
+      color: var(--muted);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 11px;
+      letter-spacing: 0;
+      vertical-align: middle;
     }
 
     .input-card {
@@ -174,9 +175,8 @@
       line-height: 1.8;
     }
 
-    #questionInput::placeholder,
-    .edit-input::placeholder,
-    #featureInput::placeholder {
+    textarea::placeholder,
+    input::placeholder {
       color: #aaa296;
     }
 
@@ -191,12 +191,9 @@
 
     .hint {
       color: var(--muted);
-      font-family:
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       font-size: 12px;
+      line-height: 1.6;
     }
 
     .submit-button,
@@ -207,14 +204,12 @@
       border: 0;
       border-radius: 999px;
       cursor: pointer;
-      transition:
-        transform 160ms ease,
-        opacity 160ms ease;
+      transition: transform 160ms ease, opacity 160ms ease, background 160ms ease;
     }
 
     .submit-button:hover,
     .primary-button:hover {
-      opacity: 0.9;
+      background: var(--accent-dark);
       transform: translateY(-1px);
     }
 
@@ -223,13 +218,88 @@
       transform: translateY(0);
     }
 
-    /* 问题列表 */
+    .tags-panel {
+      margin-top: 18px;
+      padding: 15px 17px;
+      background: rgba(250, 248, 243, 0.58);
+      border: 1px solid rgba(217, 210, 198, 0.8);
+      border-radius: 15px;
+    }
+
+    .tags-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .tags-panel-title {
+      margin: 0;
+      color: var(--muted);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    .active-filter-text {
+      color: var(--muted);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 11px;
+    }
+
+    .tag-list,
+    .question-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag-chip {
+      padding: 5px 10px;
+      color: #666057;
+      background: var(--blue-soft);
+      border: 1px solid transparent;
+      border-radius: 999px;
+      cursor: pointer;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 12px;
+      line-height: 1.2;
+      transition: transform 150ms ease, border-color 150ms ease, filter 150ms ease;
+    }
+
+    .tag-chip:nth-child(5n + 2) { background: var(--green-soft); }
+    .tag-chip:nth-child(5n + 3) { background: var(--yellow-soft); }
+    .tag-chip:nth-child(5n + 4) { background: var(--rose-soft); }
+    .tag-chip:nth-child(5n + 5) { background: var(--violet-soft); }
+
+    .tag-chip:hover {
+      filter: brightness(0.98);
+      transform: translateY(-1px);
+    }
+
+    .tag-chip.active {
+      color: var(--text);
+      border-color: #a8a093;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+    }
+
+    .all-tag-chip {
+      background: #ebe6dd;
+    }
 
     .section-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 14px;
       margin: 36px 4px 14px;
+    }
+
+    .section-heading-group {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
     }
 
     .section-title {
@@ -239,17 +309,25 @@
       letter-spacing: 0.08em;
     }
 
-    .question-count {
+    .question-count,
+    .feature-section-count {
       color: var(--muted);
-      font-family:
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        sans-serif;
-      font-size: 13px;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 12px;
     }
 
-    .question-list {
+    .section-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .question-list,
+    .feature-list,
+    .trash-list,
+    .comment-list,
+    .deleted-comment-list {
       display: grid;
       gap: 12px;
       margin: 0;
@@ -258,16 +336,17 @@
     }
 
     .question-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
       padding: 20px 22px;
       overflow: hidden;
       background: rgba(250, 248, 243, 0.78);
       border: 1px solid var(--border);
       border-radius: 16px;
       animation: appear 240ms ease both;
-      transition:
-        background 180ms ease,
-        border-color 180ms ease,
-        opacity 180ms ease;
+      transition: background 180ms ease, border-color 180ms ease, opacity 180ms ease;
     }
 
     .question-item:hover {
@@ -291,13 +370,49 @@
       box-shadow: 0 10px 30px rgba(73, 64, 52, 0.06);
     }
 
-    .question-text {
+    .selectable-card {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .selection-checkbox {
+      width: 22px;
+      height: 22px;
+      margin: 3px 0 0;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .question-content,
+    .feature-content {
+      min-width: 0;
+    }
+
+    .question-text,
+    .feature-item-text {
       margin: 0;
       overflow-wrap: anywhere;
       white-space: pre-wrap;
-      font-size: 17px;
       line-height: 1.75;
-      transition: color 180ms ease;
+    }
+
+    .question-text {
+      font-size: 17px;
+    }
+
+    .feature-item-text {
+      font-size: 14px;
+    }
+
+    .question-tags {
+      margin-top: 12px;
+    }
+
+    .question-tags .tag-chip {
+      padding: 4px 9px;
+      font-size: 11px;
     }
 
     .question-meta {
@@ -309,14 +424,13 @@
       margin-top: 16px;
     }
 
-    .timestamp {
+    .timestamp,
+    .feature-item-date,
+    .comment-date,
+    .trash-date {
       color: var(--muted);
-      font-family:
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        sans-serif;
-      font-size: 12px;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 11px;
       line-height: 1.7;
     }
 
@@ -325,7 +439,11 @@
       color: #b0a89d;
     }
 
-    .actions {
+    .actions,
+    .feature-item-actions,
+    .comment-actions,
+    .edit-controls,
+    .trash-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
@@ -334,30 +452,28 @@
     .action-button,
     .secondary-button,
     .data-button,
-    .feature-action-button {
+    .feature-action-button,
+    .small-button,
+    .select-copy-button,
+    .trash-toggle-button {
       padding: 7px 11px;
       color: var(--muted);
       background: transparent;
       border: 1px solid var(--border);
       border-radius: 999px;
       cursor: pointer;
-      font-family:
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       font-size: 12px;
-      transition:
-        color 160ms ease,
-        background 160ms ease,
-        border-color 160ms ease,
-        transform 160ms ease;
+      transition: color 160ms ease, background 160ms ease, border-color 160ms ease, transform 160ms ease;
     }
 
     .action-button:hover,
     .secondary-button:hover,
     .data-button:hover,
-    .feature-action-button:hover {
+    .feature-action-button:hover,
+    .small-button:hover,
+    .select-copy-button:hover,
+    .trash-toggle-button:hover {
       color: var(--text);
       background: var(--surface-hover);
     }
@@ -365,79 +481,258 @@
     .action-button:active,
     .secondary-button:active,
     .data-button:active,
-    .feature-action-button:active {
+    .feature-action-button:active,
+    .small-button:active,
+    .select-copy-button:active,
+    .trash-toggle-button:active {
       transform: scale(0.97);
     }
 
-    .solve-button.active {
+    .solve-button.active,
+    .feature-done-button:hover,
+    .restore-button:hover {
       color: #58634f;
       background: var(--accent-soft);
       border-color: #bbc3b0;
     }
 
     .delete-button:hover,
-    .feature-delete-button:hover {
+    .feature-delete-button:hover,
+    .comment-delete-button:hover {
       color: var(--danger);
       background: var(--danger-soft);
       border-color: #d9bbb5;
     }
 
-    .edit-area {
+    .edit-area,
+    .feature-edit-area,
+    .comment-edit-area {
       display: grid;
       gap: 12px;
     }
 
-    .edit-input {
+    .edit-input,
+    .feature-edit-input,
+    .comment-edit-input,
+    .comment-input {
       width: 100%;
-      min-height: 120px;
-      padding: 14px 16px;
+      padding: 12px 14px;
       resize: vertical;
       color: var(--text);
       caret-color: var(--accent);
-      background: #fffdf9;
+      background: var(--surface-strong);
       border: 1px solid var(--border);
       border-radius: 12px;
       outline: none;
-      font-size: 17px;
       line-height: 1.7;
-      transition:
-        border-color 160ms ease,
-        box-shadow 160ms ease;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .edit-input {
+      min-height: 120px;
+      font-size: 17px;
+    }
+
+    .feature-edit-input {
+      min-height: 100px;
+      font-size: 14px;
+    }
+
+    .comment-edit-input,
+    .comment-input {
+      min-height: 76px;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 13px;
     }
 
     .edit-input:focus,
+    .feature-edit-input:focus,
+    .comment-edit-input:focus,
+    .comment-input:focus,
     #featureInput:focus {
       border-color: #aeb6a3;
       box-shadow: 0 0 0 3px rgba(116, 125, 104, 0.11);
     }
 
     .edit-controls {
-      display: flex;
       justify-content: flex-end;
-      gap: 8px;
     }
 
-    .save-edit-button {
+    .save-edit-button,
+    .confirm-copy-button {
       color: #f9f7f2;
       background: var(--accent);
       border-color: var(--accent);
     }
 
-    .save-edit-button:hover {
+    .save-edit-button:hover,
+    .confirm-copy-button:hover {
       color: #f9f7f2;
-      background: #68715e;
+      background: var(--accent-dark);
     }
 
-    .empty-state {
-      padding: 36px 20px;
+    .comments-section {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .comments-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 12px;
+    }
+
+    .comments-toggle:hover {
+      color: var(--text);
+    }
+
+    .comments-body {
+      display: grid;
+      gap: 12px;
+      margin-top: 13px;
+    }
+
+    .comment-form {
+      display: grid;
+      gap: 8px;
+    }
+
+    .comment-form-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .comment-item,
+    .deleted-comment-item {
+      padding: 11px 12px;
+      background: rgba(255, 253, 249, 0.64);
+      border: 1px solid rgba(217, 210, 198, 0.82);
+      border-radius: 11px;
+    }
+
+    .comment-text {
+      margin: 0;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .comment-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .comment-actions .small-button {
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+
+    .deleted-comments-box {
+      padding: 10px;
+      background: rgba(242, 231, 228, 0.45);
+      border: 1px dashed #d8c3bd;
+      border-radius: 11px;
+    }
+
+    .deleted-comments-title {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 11px;
+    }
+
+    .deleted-comment-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .deleted-comment-text {
+      margin: 0;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 12px;
+    }
+
+    .empty-state,
+    .feature-empty,
+    .trash-empty {
+      padding: 28px 18px;
       color: var(--muted);
       text-align: center;
       border: 1px dashed var(--border);
-      border-radius: 16px;
+      border-radius: 14px;
       line-height: 1.8;
     }
 
-    /* 数据导出与导入 */
+    .feature-empty,
+    .trash-empty {
+      font-size: 12px;
+    }
+
+    .question-trash-section {
+      margin-top: 34px;
+      border-top: 1px solid rgba(217, 210, 198, 0.78);
+    }
+
+    .trash-toggle-button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+      padding: 11px 15px;
+      background: rgba(250, 248, 243, 0.54);
+      border-radius: 12px;
+    }
+
+    .trash-panel {
+      display: grid;
+      gap: 12px;
+      padding: 14px 4px 0;
+    }
+
+    .trash-item {
+      padding: 14px 16px;
+      background: rgba(242, 231, 228, 0.38);
+      border: 1px solid #ddcbc6;
+      border-radius: 13px;
+    }
+
+    .trash-text {
+      margin: 0;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .trash-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+    }
 
     .data-tools {
       margin-top: 34px;
@@ -449,11 +744,7 @@
     .data-tools-title {
       margin: 0 0 13px;
       color: var(--muted);
-      font-family:
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       font-size: 12px;
       letter-spacing: 0.1em;
     }
@@ -473,16 +764,45 @@
     .data-tools-note {
       margin: 12px 0 0;
       color: var(--muted);
-      font-family:
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       font-size: 11px;
       line-height: 1.6;
     }
 
-    /* 功能迭代侧边栏 */
+    .selection-bar {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      z-index: 35;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: min(560px, calc(100vw - 28px));
+      padding: 11px 14px;
+      background: rgba(63, 59, 53, 0.94);
+      border-radius: 999px;
+      box-shadow: 0 12px 34px rgba(45, 40, 34, 0.24);
+      transform: translateX(-50%);
+      color: #f8f4ed;
+      backdrop-filter: blur(12px);
+    }
+
+    .selection-count {
+      margin-right: auto;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 13px;
+    }
+
+    .selection-bar .secondary-button {
+      color: #e8e0d4;
+      border-color: rgba(255, 255, 255, 0.24);
+    }
+
+    .selection-bar .secondary-button:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
 
     .feature-fab {
       position: fixed;
@@ -501,20 +821,13 @@
       box-shadow: 0 10px 28px rgba(73, 64, 52, 0.16);
       cursor: pointer;
       font-size: 22px;
-      transition:
-        transform 180ms ease,
-        background 180ms ease,
-        box-shadow 180ms ease;
+      transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
     }
 
     .feature-fab:hover {
       background: #fffdf9;
       box-shadow: 0 14px 34px rgba(73, 64, 52, 0.2);
       transform: translateY(-2px);
-    }
-
-    .feature-fab:active {
-      transform: translateY(0) scale(0.96);
     }
 
     .panel-overlay {
@@ -537,7 +850,7 @@
       top: 0;
       right: 0;
       z-index: 40;
-      width: min(340px, 90vw);
+      width: min(390px, 94vw);
       height: 100dvh;
       display: flex;
       flex-direction: column;
@@ -546,9 +859,7 @@
       box-shadow: var(--panel-shadow);
       transform: translateX(105%);
       visibility: hidden;
-      transition:
-        transform 260ms ease,
-        visibility 260ms ease;
+      transition: transform 260ms ease, visibility 260ms ease;
     }
 
     .feature-panel.open {
@@ -561,7 +872,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 22px 20px 16px;
+      padding: 20px 18px 15px;
       border-bottom: 1px solid var(--border);
     }
 
@@ -583,13 +894,8 @@
       border: 1px solid transparent;
       border-radius: 50%;
       cursor: pointer;
-      font-family:
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       font-size: 22px;
-      line-height: 1;
     }
 
     .panel-close-button:hover {
@@ -600,29 +906,22 @@
 
     .feature-tabs {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 6px;
-      padding: 14px 16px;
+      padding: 12px 12px;
       border-bottom: 1px solid var(--border);
     }
 
     .feature-tab {
-      padding: 10px 8px;
+      padding: 9px 6px;
       color: var(--muted);
       background: transparent;
       border: 1px solid transparent;
       border-radius: 10px;
       cursor: pointer;
-      font-family:
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        sans-serif;
-      font-size: 13px;
-      transition:
-        color 160ms ease,
-        background 160ms ease,
-        border-color 160ms ease;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 12px;
+      transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
     }
 
     .feature-tab:hover {
@@ -640,7 +939,7 @@
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      padding: 18px 16px 28px;
+      padding: 16px 14px 90px;
     }
 
     .feature-tab-panel {
@@ -666,20 +965,24 @@
       resize: vertical;
       color: var(--text);
       caret-color: var(--accent);
-      background: #fffdf9;
+      background: var(--surface-strong);
       border: 1px solid var(--border);
       border-radius: 13px;
       outline: none;
       font-size: 15px;
       line-height: 1.7;
-      transition:
-        border-color 160ms ease,
-        box-shadow 160ms ease;
     }
 
-    .feature-form-footer {
+    .feature-form-footer,
+    .feature-list-toolbar {
       display: flex;
+      align-items: center;
       justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .feature-list-toolbar {
+      margin-bottom: 15px;
     }
 
     .feature-section + .feature-section {
@@ -699,27 +1002,8 @@
       letter-spacing: 0.05em;
     }
 
-    .feature-section-count {
-      color: var(--muted);
-      font-family:
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        sans-serif;
-      font-size: 11px;
-      font-weight: 400;
-      letter-spacing: 0;
-    }
-
-    .feature-list {
-      display: grid;
-      gap: 10px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
     .feature-item {
+      position: relative;
       padding: 14px;
       background: rgba(250, 248, 243, 0.78);
       border: 1px solid var(--border);
@@ -731,82 +1015,84 @@
       border-color: #cbd1c2;
     }
 
-    .feature-item-text {
-      margin: 0;
-      overflow-wrap: anywhere;
-      white-space: pre-wrap;
-      font-size: 14px;
-      line-height: 1.7;
-    }
-
     .feature-item.completed .feature-item-text {
       color: #666d5f;
     }
 
-    .feature-item-date {
-      margin: 9px 0 0;
-      color: var(--muted);
-      font-family:
-        system-ui,
-        -apple-system,
-        "Segoe UI",
-        sans-serif;
-      font-size: 11px;
-      line-height: 1.6;
-    }
-
     .feature-item-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
       margin-top: 12px;
     }
 
-    .feature-done-button:hover {
-      color: #58634f;
-      background: var(--accent-soft);
-      border-color: #bbc3b0;
+    .rollback-button {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      border-radius: 50%;
+      cursor: pointer;
+      opacity: 0.42;
+      transition: opacity 150ms ease, background 150ms ease;
     }
 
-    .feature-empty {
-      padding: 24px 14px;
-      color: var(--muted);
-      text-align: center;
-      border: 1px dashed var(--border);
-      border-radius: 12px;
+    .rollback-button:hover {
+      opacity: 1;
+      background: rgba(255, 255, 255, 0.54);
+    }
+
+    .feature-item.completed .feature-content {
+      padding-right: 28px;
+    }
+
+    .feature-selection-bar {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      color: #f8f4ed;
+      background: rgba(63, 59, 53, 0.95);
+      border-radius: 14px;
+      box-shadow: 0 10px 26px rgba(45, 40, 34, 0.22);
+    }
+
+    .feature-selection-bar .selection-count {
+      margin-right: auto;
       font-size: 12px;
-      line-height: 1.7;
+    }
+
+    .feature-selection-bar .secondary-button {
+      color: #e8e0d4;
+      border-color: rgba(255, 255, 255, 0.24);
     }
 
     @keyframes appear {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     @media (max-width: 600px) {
       body {
-        padding: 0 14px 30px;
+        padding: 0 14px 42px;
       }
 
       .daily-review {
-        margin-bottom: 34px;
+        margin-bottom: 30px;
         padding: 17px 18px;
         border-radius: 0 0 16px 16px;
       }
@@ -826,8 +1112,18 @@
         align-items: flex-end;
       }
 
+      .section-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .section-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
       .question-item {
-        padding: 18px;
+        padding: 17px;
       }
 
       .question-meta {
@@ -836,6 +1132,15 @@
 
       .actions {
         width: 100%;
+      }
+
+      .selection-checkbox {
+        width: 26px;
+        height: 26px;
+      }
+
+      .selectable-card {
+        grid-template-columns: 38px minmax(0, 1fr);
       }
 
       .feature-fab {
@@ -847,7 +1152,21 @@
       }
 
       .feature-panel {
-        width: min(340px, 94vw);
+        width: 100vw;
+        max-width: none;
+        border-left: 0;
+      }
+
+      .selection-bar {
+        bottom: 12px;
+        flex-wrap: wrap;
+        border-radius: 18px;
+      }
+
+      .selection-count {
+        width: 100%;
+        margin-right: 0;
+        text-align: center;
       }
     }
 
@@ -873,6 +1192,16 @@
       .data-button {
         width: 100%;
       }
+
+      .feature-tabs {
+        gap: 4px;
+        padding: 10px 8px;
+      }
+
+      .feature-tab {
+        padding: 9px 3px;
+        font-size: 11px;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -896,7 +1225,7 @@
     </aside>
 
     <header class="header">
-      <h1 class="title">今日问题盒</h1>
+      <h1 class="title">今日问题盒 <span class="version-mark">v3.0</span></h1>
       <p class="subtitle">先把问题放在这里，不必立刻回答。</p>
     </header>
 
@@ -905,20 +1234,36 @@
         id="questionInput"
         placeholder="此刻我脑子里卡着什么..."
         aria-label="输入一个问题"
-        maxlength="1000"
+        maxlength="2000"
         autofocus
       ></textarea>
 
       <div class="input-footer">
-        <span class="hint">回车放入问题盒 · Shift + 回车换行</span>
+        <span class="hint">回车放入问题盒 · Shift + 回车换行 · 可在文本中加入 #标签</span>
         <button class="submit-button" type="submit">放进去</button>
       </div>
     </form>
 
+    <section id="tagsPanel" class="tags-panel" aria-labelledby="tagsTitle">
+      <div class="tags-panel-header">
+        <p id="tagsTitle" class="tags-panel-title">所有标签</p>
+        <span id="activeFilterText" class="active-filter-text"></span>
+      </div>
+      <div id="tagList" class="tag-list"></div>
+    </section>
+
     <section aria-labelledby="listTitle">
       <div class="section-header">
-        <h2 id="listTitle" class="section-title">盒子里的问题</h2>
-        <span id="questionCount" class="question-count"></span>
+        <div class="section-heading-group">
+          <h2 id="listTitle" class="section-title">盒子里的问题</h2>
+          <span id="questionCount" class="question-count"></span>
+        </div>
+
+        <div class="section-actions">
+          <button id="questionSelectButton" class="select-copy-button" type="button">
+            📋 选择并复制
+          </button>
+        </div>
       </div>
 
       <ul id="questionList" class="question-list"></ul>
@@ -927,33 +1272,51 @@
         盒子还是空的。<br />
         有些问题被写下来以后，就已经松动了一点。
       </div>
+
+      <div id="filterEmptyState" class="empty-state" hidden>
+        当前标签下还没有问题。
+      </div>
+    </section>
+
+    <section class="question-trash-section" aria-labelledby="questionTrashTitle">
+      <button
+        id="questionTrashToggle"
+        class="trash-toggle-button"
+        type="button"
+        aria-expanded="false"
+        aria-controls="questionTrashPanel"
+      >
+        <span id="questionTrashTitle">🗑️ 回收站</span>
+        <span id="questionTrashCount">0 条</span>
+      </button>
+
+      <div id="questionTrashPanel" class="trash-panel" hidden>
+        <ul id="questionTrashList" class="trash-list"></ul>
+        <div id="questionTrashEmpty" class="trash-empty">回收站是空的。</div>
+      </div>
     </section>
 
     <footer class="data-tools">
       <p class="data-tools-title">数据备份</p>
 
       <div class="data-tools-actions">
-        <button id="exportButton" class="data-button" type="button">
-          📤 导出数据
-        </button>
-
-        <button id="importButton" class="data-button" type="button">
-          📥 导入数据
-        </button>
+        <button id="exportButton" class="data-button" type="button">📤 导出数据</button>
+        <button id="importButton" class="data-button" type="button">📥 导入数据</button>
       </div>
 
       <p class="data-tools-note">
-        导入时会与现有问题合并，不会直接覆盖当前数据。
+        导出文件包含问题、愿望清单与两个回收站；导入时会与现有数据合并。
       </p>
 
-      <input
-        id="importFileInput"
-        type="file"
-        accept=".json,application/json"
-        hidden
-      />
+      <input id="importFileInput" type="file" accept=".json,application/json" hidden />
     </footer>
   </main>
+
+  <div id="questionSelectionBar" class="selection-bar" hidden>
+    <span id="questionSelectionCount" class="selection-count">已选 0 条</span>
+    <button id="questionConfirmCopy" class="secondary-button confirm-copy-button" type="button">确认复制</button>
+    <button id="questionCancelSelection" class="secondary-button" type="button">取消</button>
+  </div>
 
   <button
     id="featureFab"
@@ -968,94 +1331,44 @@
 
   <div id="panelOverlay" class="panel-overlay" aria-hidden="true"></div>
 
-  <aside
-    id="featurePanel"
-    class="feature-panel"
-    aria-labelledby="featurePanelTitle"
-    aria-hidden="true"
-  >
+  <aside id="featurePanel" class="feature-panel" aria-labelledby="featurePanelTitle" aria-hidden="true">
     <header class="feature-panel-header">
-      <h2 id="featurePanelTitle" class="feature-panel-title">
-        功能迭代清单
-      </h2>
-
-      <button
-        id="panelCloseButton"
-        class="panel-close-button"
-        type="button"
-        aria-label="关闭功能迭代清单"
-      >
-        ×
-      </button>
+      <h2 id="featurePanelTitle" class="feature-panel-title">功能迭代清单</h2>
+      <button id="panelCloseButton" class="panel-close-button" type="button" aria-label="关闭功能迭代清单">×</button>
     </header>
 
     <div class="feature-tabs" role="tablist" aria-label="功能迭代清单">
-      <button
-        id="addFeatureTab"
-        class="feature-tab active"
-        type="button"
-        role="tab"
-        aria-selected="true"
-        aria-controls="addFeaturePanel"
-      >
-        ➕ 添加想法
-      </button>
-
-      <button
-        id="featureListTab"
-        class="feature-tab"
-        type="button"
-        role="tab"
-        aria-selected="false"
-        aria-controls="featureListPanel"
-      >
-        📋 愿望列表
-      </button>
+      <button id="addFeatureTab" class="feature-tab active" type="button" role="tab" aria-selected="true" aria-controls="addFeaturePanel">➕ 添加想法</button>
+      <button id="featureListTab" class="feature-tab" type="button" role="tab" aria-selected="false" aria-controls="featureListPanel">📋 愿望列表</button>
+      <button id="featureTrashTab" class="feature-tab" type="button" role="tab" aria-selected="false" aria-controls="featureTrashPanel">🗑️ 回收站</button>
     </div>
 
     <div class="feature-panel-content">
-      <section
-        id="addFeaturePanel"
-        class="feature-tab-panel"
-        role="tabpanel"
-        aria-labelledby="addFeatureTab"
-      >
+      <section id="addFeaturePanel" class="feature-tab-panel" role="tabpanel" aria-labelledby="addFeatureTab">
         <p class="feature-intro">
           先记录下来，不必现在就实现。每个念头都可以成为这个小工具下一次生长的方向。
         </p>
 
         <form id="featureForm" class="feature-form">
-          <textarea
-            id="featureInput"
-            placeholder="还希望今日问题盒拥有怎样的功能..."
-            aria-label="输入功能想法"
-            maxlength="1000"
-          ></textarea>
-
+          <textarea id="featureInput" placeholder="还希望今日问题盒拥有怎样的功能..." aria-label="输入功能想法" maxlength="2000"></textarea>
           <div class="feature-form-footer">
             <button class="primary-button" type="submit">记录</button>
           </div>
         </form>
       </section>
 
-      <section
-        id="featureListPanel"
-        class="feature-tab-panel"
-        role="tabpanel"
-        aria-labelledby="featureListTab"
-        hidden
-      >
+      <section id="featureListPanel" class="feature-tab-panel" role="tabpanel" aria-labelledby="featureListTab" hidden>
+        <div class="feature-list-toolbar">
+          <button id="featureSelectButton" class="select-copy-button" type="button">📋 选择并复制</button>
+        </div>
+
         <section class="feature-section">
           <h3 class="feature-section-title">
             <span>等待实现</span>
             <span id="pendingFeatureCount" class="feature-section-count"></span>
           </h3>
-
           <ul id="pendingFeatureList" class="feature-list"></ul>
-
-          <div id="pendingFeatureEmpty" class="feature-empty">
-            还没有等待实现的想法。
-          </div>
+          <div id="pendingFeatureEmpty" class="feature-empty">还没有等待实现的想法。</div>
         </section>
 
         <section class="feature-section">
@@ -1063,14 +1376,22 @@
             <span>已实现</span>
             <span id="completedFeatureCount" class="feature-section-count"></span>
           </h3>
-
           <ul id="completedFeatureList" class="feature-list"></ul>
-
-          <div id="completedFeatureEmpty" class="feature-empty">
-            已实现的功能会被收进这里。
-          </div>
+          <div id="completedFeatureEmpty" class="feature-empty">已实现的功能会被收进这里。</div>
         </section>
       </section>
+
+      <section id="featureTrashPanel" class="feature-tab-panel" role="tabpanel" aria-labelledby="featureTrashTab" hidden>
+        <p class="feature-intro">最近删除的 5 条想法会暂时保留在这里。</p>
+        <ul id="featureTrashList" class="trash-list"></ul>
+        <div id="featureTrashEmpty" class="trash-empty">愿望回收站是空的。</div>
+      </section>
+    </div>
+
+    <div id="featureSelectionBar" class="feature-selection-bar" hidden>
+      <span id="featureSelectionCount" class="selection-count">已选 0 条</span>
+      <button id="featureConfirmCopy" class="secondary-button confirm-copy-button" type="button">确认复制</button>
+      <button id="featureCancelSelection" class="secondary-button" type="button">取消</button>
     </div>
   </aside>
 
@@ -1078,103 +1399,112 @@
     (() => {
       "use strict";
 
-      /*
-       * 当前正式使用的键名。
-       * 同时兼容此前版本使用过的 today-question-box-v1，
-       * 若发现旧数据，会自动迁移并写入 questions。
-       */
       const STORAGE_KEY = "questions";
       const LEGACY_STORAGE_KEYS = ["today-question-box-v1"];
       const FEATURE_STORAGE_KEY = "feature_backlog";
+      const QUESTION_TRASH_KEY = "questions_trash";
+      const FEATURE_TRASH_KEY = "feature_backlog_trash";
+      const QUESTION_TRASH_LIMIT = 5;
+      const FEATURE_TRASH_LIMIT = 5;
+      const DELETED_COMMENT_LIMIT = 3;
 
-      const form = document.getElementById("questionForm");
-      const input = document.getElementById("questionInput");
-      const list = document.getElementById("questionList");
-      const emptyState = document.getElementById("emptyState");
-      const questionCount = document.getElementById("questionCount");
-      const reviewQuestion = document.getElementById("reviewQuestion");
-      const reviewNote = document.getElementById("reviewNote");
+      const $ = (id) => document.getElementById(id);
 
-      const exportButton = document.getElementById("exportButton");
-      const importButton = document.getElementById("importButton");
-      const importFileInput = document.getElementById("importFileInput");
+      const form = $("questionForm");
+      const input = $("questionInput");
+      const list = $("questionList");
+      const emptyState = $("emptyState");
+      const filterEmptyState = $("filterEmptyState");
+      const questionCount = $("questionCount");
+      const reviewQuestion = $("reviewQuestion");
+      const reviewNote = $("reviewNote");
+      const tagList = $("tagList");
+      const activeFilterText = $("activeFilterText");
 
-      const featureFab = document.getElementById("featureFab");
-      const featurePanel = document.getElementById("featurePanel");
-      const panelOverlay = document.getElementById("panelOverlay");
-      const panelCloseButton = document.getElementById("panelCloseButton");
+      const questionTrashToggle = $("questionTrashToggle");
+      const questionTrashPanel = $("questionTrashPanel");
+      const questionTrashList = $("questionTrashList");
+      const questionTrashEmpty = $("questionTrashEmpty");
+      const questionTrashCount = $("questionTrashCount");
 
-      const addFeatureTab = document.getElementById("addFeatureTab");
-      const featureListTab = document.getElementById("featureListTab");
-      const addFeaturePanel = document.getElementById("addFeaturePanel");
-      const featureListPanel = document.getElementById("featureListPanel");
+      const exportButton = $("exportButton");
+      const importButton = $("importButton");
+      const importFileInput = $("importFileInput");
 
-      const featureForm = document.getElementById("featureForm");
-      const featureInput = document.getElementById("featureInput");
-      const pendingFeatureList =
-        document.getElementById("pendingFeatureList");
-      const completedFeatureList =
-        document.getElementById("completedFeatureList");
-      const pendingFeatureEmpty =
-        document.getElementById("pendingFeatureEmpty");
-      const completedFeatureEmpty =
-        document.getElementById("completedFeatureEmpty");
-      const pendingFeatureCount =
-        document.getElementById("pendingFeatureCount");
-      const completedFeatureCount =
-        document.getElementById("completedFeatureCount");
+      const questionSelectButton = $("questionSelectButton");
+      const questionSelectionBar = $("questionSelectionBar");
+      const questionSelectionCount = $("questionSelectionCount");
+      const questionConfirmCopy = $("questionConfirmCopy");
+      const questionCancelSelection = $("questionCancelSelection");
 
-      let questions = loadQuestions();
-      let featureBacklog = loadFeatureBacklog();
-      let reviewQuestionId = chooseRandomQuestionId();
+      const featureFab = $("featureFab");
+      const featurePanel = $("featurePanel");
+      const panelOverlay = $("panelOverlay");
+      const panelCloseButton = $("panelCloseButton");
+      const addFeatureTab = $("addFeatureTab");
+      const featureListTab = $("featureListTab");
+      const featureTrashTab = $("featureTrashTab");
+      const addFeaturePanel = $("addFeaturePanel");
+      const featureListPanel = $("featureListPanel");
+      const featureTrashPanel = $("featureTrashPanel");
+      const featureForm = $("featureForm");
+      const featureInput = $("featureInput");
+      const pendingFeatureList = $("pendingFeatureList");
+      const completedFeatureList = $("completedFeatureList");
+      const pendingFeatureEmpty = $("pendingFeatureEmpty");
+      const completedFeatureEmpty = $("completedFeatureEmpty");
+      const pendingFeatureCount = $("pendingFeatureCount");
+      const completedFeatureCount = $("completedFeatureCount");
+      const featureTrashList = $("featureTrashList");
+      const featureTrashEmpty = $("featureTrashEmpty");
+
+      const featureSelectButton = $("featureSelectButton");
+      const featureSelectionBar = $("featureSelectionBar");
+      const featureSelectionCount = $("featureSelectionCount");
+      const featureConfirmCopy = $("featureConfirmCopy");
+      const featureCancelSelection = $("featureCancelSelection");
+
+      let questions = [];
+      let questionTrash = [];
+      let featureBacklog = [];
+      let featureTrash = [];
+      let reviewQuestionId = null;
       let editingQuestionId = null;
+      let editingFeatureId = null;
+      let editingComment = null;
+      let activeTag = null;
       let activeFeatureTab = "add";
+      let questionSelectionMode = false;
+      let featureSelectionMode = false;
+      const selectedQuestionIds = new Set();
+      const selectedFeatureIds = new Set();
+      const openQuestionComments = new Set();
+      const openFeatureComments = new Set();
 
       function createId(prefix = "item") {
-        if (
-          window.crypto &&
-          typeof window.crypto.randomUUID === "function"
-        ) {
+        if (window.crypto && typeof window.crypto.randomUUID === "function") {
           return `${prefix}-${window.crypto.randomUUID()}`;
         }
-
-        return `${prefix}-${Date.now()}-${Math.random()
-          .toString(16)
-          .slice(2)}`;
+        return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
       }
 
       function parseDate(value) {
-        if (value === null || value === undefined || value === "") {
-          return null;
-        }
-
+        if (value === null || value === undefined || value === "") return null;
         const date = new Date(value);
         return Number.isNaN(date.getTime()) ? null : date;
       }
 
       function normalizeDate(value, fallbackValue) {
         const parsed = parseDate(value);
-
-        if (parsed) {
-          return parsed.toISOString();
-        }
-
-        const fallbackDate = parseDate(fallbackValue);
-
-        if (fallbackDate) {
-          return fallbackDate.toISOString();
-        }
-
+        if (parsed) return parsed.toISOString();
+        const fallback = parseDate(fallbackValue);
+        if (fallback) return fallback.toISOString();
         return new Date().toISOString();
       }
 
-      function formatTime(isoString) {
-        const date = parseDate(isoString);
-
-        if (!date) {
-          return "";
-        }
-
+      function formatTime(value) {
+        const date = parseDate(value);
+        if (!date) return "";
         return new Intl.DateTimeFormat("zh-CN", {
           year: "numeric",
           month: "2-digit",
@@ -1185,13 +1515,9 @@
         }).format(date);
       }
 
-      function formatDate(isoString) {
-        const date = parseDate(isoString);
-
-        if (!date) {
-          return "某一天";
-        }
-
+      function formatDate(value) {
+        const date = parseDate(value);
+        if (!date) return "某一天";
         return new Intl.DateTimeFormat("zh-CN", {
           year: "numeric",
           month: "long",
@@ -1199,19 +1525,26 @@
         }).format(date);
       }
 
-      function formatBackupDate(date = new Date()) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
+      function formatCompactDateTime(value = new Date()) {
+        const date = value instanceof Date ? value : parseDate(value) || new Date();
+        const parts = new Intl.DateTimeFormat("zh-CN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false
+        }).formatToParts(date);
+        const map = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+        return `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}`;
+      }
 
-        return `${year}${month}${day}`;
+      function formatBackupDate(date = new Date()) {
+        return `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}`;
       }
 
       function safeParseJSON(rawValue) {
-        if (!rawValue) {
-          return null;
-        }
-
+        if (!rawValue) return null;
         try {
           return JSON.parse(rawValue);
         } catch (error) {
@@ -1220,975 +1553,1123 @@
         }
       }
 
-      function extractQuestionArray(data) {
-        if (Array.isArray(data)) {
-          return data;
+      function extractTags(text) {
+        const tags = [];
+        const seen = new Set();
+        const regex = /#([\p{L}\p{N}]+)/gu;
+        let match;
+        while ((match = regex.exec(String(text))) !== null) {
+          const tag = match[1].trim();
+          const key = tag.toLocaleLowerCase();
+          if (tag && !seen.has(key)) {
+            seen.add(key);
+            tags.push(tag);
+          }
         }
+        return tags;
+      }
 
-        if (!data || typeof data !== "object") {
-          return null;
+      function normalizeTags(value, text) {
+        const source = Array.isArray(value) ? value : extractTags(text);
+        const result = [];
+        const seen = new Set();
+        source.forEach((tag) => {
+          const cleaned = String(tag).replace(/^#/, "").trim();
+          const key = cleaned.toLocaleLowerCase();
+          if (cleaned && !seen.has(key)) {
+            seen.add(key);
+            result.push(cleaned);
+          }
+        });
+        return result;
+      }
+
+      function normalizeComment(item) {
+        if (typeof item === "string") {
+          const now = new Date().toISOString();
+          return { id: createId("comment"), text: item.trim(), createdAt: now, updatedAt: now };
         }
+        if (!item || typeof item !== "object") return null;
+        const text = String(item.text ?? item.content ?? item.comment ?? "").trim();
+        if (!text) return null;
+        const createdAt = normalizeDate(item.createdAt ?? item.date ?? item.timestamp, new Date().toISOString());
+        const updatedAt = normalizeDate(item.updatedAt ?? item.modifiedAt, createdAt);
+        return {
+          id: item.id !== null && item.id !== undefined ? String(item.id) : createId("comment"),
+          text,
+          createdAt,
+          updatedAt,
+          deletedAt: item.deletedAt ? normalizeDate(item.deletedAt, createdAt) : undefined
+        };
+      }
 
-        if (Array.isArray(data.questions)) {
-          return data.questions;
-        }
-
-        if (Array.isArray(data.data)) {
-          return data.data;
-        }
-
-        if (Array.isArray(data.items)) {
-          return data.items;
-        }
-
-        return null;
+      function normalizeComments(value) {
+        if (!Array.isArray(value)) return [];
+        return value.map(normalizeComment).filter(Boolean);
       }
 
       function normalizeQuestion(item) {
         if (typeof item === "string") {
           const now = new Date().toISOString();
-
           return {
-            id: createId("question"),
-            text: item.trim(),
-            createdAt: now,
-            updatedAt: now,
-            solved: false
+            id: createId("question"), text: item.trim(), createdAt: now, updatedAt: now,
+            solved: false, tags: extractTags(item), comments: [], deletedComments: []
           };
         }
-
-        if (!item || typeof item !== "object") {
-          return null;
-        }
-
-        const rawText =
-          item.text ??
-          item.question ??
-          item.content ??
-          item.title ??
-          "";
-
-        const text = String(rawText).trim();
-
-        if (!text) {
-          return null;
-        }
-
-        /*
-         * 旧数据没有 createdAt 时，
-         * 优先将 date 字段作为原始创建时间。
-         */
-        const rawCreatedAt =
-          item.createdAt ??
-          item.created_at ??
-          item.date ??
-          item.timestamp ??
-          item.time;
-
+        if (!item || typeof item !== "object") return null;
+        const text = String(item.text ?? item.question ?? item.content ?? item.title ?? "").trim();
+        if (!text) return null;
         const createdAt = normalizeDate(
-          rawCreatedAt,
+          item.createdAt ?? item.created_at ?? item.date ?? item.timestamp ?? item.time,
           new Date().toISOString()
         );
-
-        const rawUpdatedAt =
-          item.updatedAt ??
-          item.updated_at ??
-          item.modifiedAt ??
-          item.modified_at ??
-          createdAt;
-
-        const updatedAt = normalizeDate(rawUpdatedAt, createdAt);
-
-        const solved =
-          typeof item.solved === "boolean"
-            ? item.solved
-            : typeof item.resolved === "boolean"
-              ? item.resolved
-              : item.status === "solved" ||
-                item.status === "resolved" ||
-                item.status === "done";
-
+        const updatedAt = normalizeDate(
+          item.updatedAt ?? item.updated_at ?? item.modifiedAt ?? item.modified_at,
+          createdAt
+        );
+        const solved = typeof item.solved === "boolean"
+          ? item.solved
+          : typeof item.resolved === "boolean"
+            ? item.resolved
+            : ["solved", "resolved", "done"].includes(item.status);
         return {
-          id:
-            item.id !== null && item.id !== undefined
-              ? String(item.id)
-              : createId("question"),
+          id: item.id !== null && item.id !== undefined ? String(item.id) : createId("question"),
           text,
           createdAt,
           updatedAt,
-          solved: Boolean(solved)
+          solved: Boolean(solved),
+          tags: normalizeTags(item.tags, text),
+          comments: normalizeComments(item.comments),
+          deletedComments: normalizeComments(item.deletedComments).slice(0, DELETED_COMMENT_LIMIT),
+          deletedAt: item.deletedAt ? normalizeDate(item.deletedAt, updatedAt) : undefined
         };
       }
 
-      function getQuestionFingerprint(question) {
-        return `${question.text.trim()}__${question.createdAt}`;
+      function normalizeFeatureItem(item) {
+        if (typeof item === "string") {
+          const now = new Date().toISOString();
+          return {
+            id: createId("feature"), text: item.trim(), createdAt: now, updatedAt: now,
+            status: "pending", completedAt: null, revertedAt: null, comments: [], deletedComments: []
+          };
+        }
+        if (!item || typeof item !== "object") return null;
+        const text = String(item.text ?? item.description ?? item.idea ?? item.content ?? "").trim();
+        if (!text) return null;
+        const createdAt = normalizeDate(item.createdAt ?? item.created_at ?? item.date ?? item.timestamp, new Date().toISOString());
+        const updatedAt = normalizeDate(item.updatedAt ?? item.updated_at ?? item.modifiedAt, createdAt);
+        const completed = item.status === "completed" || item.status === "done" || item.completed === true || item.implemented === true;
+        return {
+          id: item.id !== null && item.id !== undefined ? String(item.id) : createId("feature"),
+          text,
+          createdAt,
+          updatedAt,
+          status: completed ? "completed" : "pending",
+          completedAt: completed
+            ? normalizeDate(item.completedAt ?? item.completed_at ?? item.implementedAt ?? item.finishedAt, updatedAt)
+            : null,
+          revertedAt: item.revertedAt ? normalizeDate(item.revertedAt, updatedAt) : null,
+          comments: normalizeComments(item.comments),
+          deletedComments: normalizeComments(item.deletedComments).slice(0, DELETED_COMMENT_LIMIT),
+          deletedAt: item.deletedAt ? normalizeDate(item.deletedAt, updatedAt) : undefined
+        };
       }
 
-      function mergeQuestionCollections(existing, incoming) {
+      function extractQuestionArray(data) {
+        if (Array.isArray(data)) return data;
+        if (!data || typeof data !== "object") return null;
+        if (Array.isArray(data.questions)) return data.questions;
+        if (Array.isArray(data.data)) return data.data;
+        if (Array.isArray(data.items)) return data.items;
+        return null;
+      }
+
+      function extractFeatureArray(data) {
+        if (Array.isArray(data)) return data;
+        if (!data || typeof data !== "object") return [];
+        if (Array.isArray(data.featureBacklog)) return data.featureBacklog;
+        if (Array.isArray(data.features)) return data.features;
+        if (Array.isArray(data.backlog)) return data.backlog;
+        return [];
+      }
+
+      function mergeById(existing, incoming, fingerprintFn) {
         const merged = [];
         const indexById = new Map();
         const fingerprints = new Set();
-
-        function addOrMerge(question) {
-          if (!question) {
+        [...existing, ...incoming].forEach((item) => {
+          if (!item) return;
+          const fingerprint = fingerprintFn(item);
+          const index = indexById.get(item.id);
+          if (index !== undefined) {
+            const currentTime = parseDate(merged[index].updatedAt ?? merged[index].deletedAt)?.getTime() || 0;
+            const incomingTime = parseDate(item.updatedAt ?? item.deletedAt)?.getTime() || 0;
+            if (incomingTime > currentTime) merged[index] = item;
             return;
           }
-
-          const existingIndex = indexById.get(question.id);
-          const fingerprint = getQuestionFingerprint(question);
-
-          if (existingIndex !== undefined) {
-            const current = merged[existingIndex];
-            const currentUpdated =
-              parseDate(current.updatedAt)?.getTime() || 0;
-            const incomingUpdated =
-              parseDate(question.updatedAt)?.getTime() || 0;
-
-            if (incomingUpdated > currentUpdated) {
-              merged[existingIndex] = question;
-              fingerprints.add(fingerprint);
-            }
-
-            return;
-          }
-
-          if (fingerprints.has(fingerprint)) {
-            return;
-          }
-
-          indexById.set(question.id, merged.length);
+          if (fingerprints.has(fingerprint)) return;
+          indexById.set(item.id, merged.length);
           fingerprints.add(fingerprint);
-          merged.push(question);
-        }
-
-        existing.forEach(addOrMerge);
-        incoming.forEach(addOrMerge);
-
-        return merged.sort((a, b) => {
-          const timeA = parseDate(a.createdAt)?.getTime() || 0;
-          const timeB = parseDate(b.createdAt)?.getTime() || 0;
-          return timeB - timeA;
+          merged.push(item);
         });
+        return merged;
+      }
+
+      function sortByCreated(items) {
+        return items.sort((a, b) => (parseDate(b.createdAt)?.getTime() || 0) - (parseDate(a.createdAt)?.getTime() || 0));
+      }
+
+      function sortByDeleted(items) {
+        return items.sort((a, b) => (parseDate(b.deletedAt)?.getTime() || 0) - (parseDate(a.deletedAt)?.getTime() || 0));
       }
 
       function loadQuestions() {
         const collections = [];
-        let shouldMigrate = false;
-
         const primaryRaw = localStorage.getItem(STORAGE_KEY);
         const primaryData = safeParseJSON(primaryRaw);
         const primaryArray = extractQuestionArray(primaryData);
 
+        /*
+         * questions 已存在时，以它为唯一主数据源，避免旧键中的历史副本
+         * 在用户清空或删除问题后再次“复活”。只有 questions 尚不存在或
+         * 无法识别时，才从旧键 today-question-box-v1 迁移一次。
+         */
         if (primaryArray) {
           collections.push(primaryArray);
+        } else {
+          LEGACY_STORAGE_KEYS.forEach((key) => {
+            const legacyArray = extractQuestionArray(safeParseJSON(localStorage.getItem(key)));
+            if (legacyArray) collections.push(legacyArray);
+          });
         }
 
-        LEGACY_STORAGE_KEYS.forEach((legacyKey) => {
-          const legacyRaw = localStorage.getItem(legacyKey);
-          const legacyData = safeParseJSON(legacyRaw);
-          const legacyArray = extractQuestionArray(legacyData);
-
-          if (legacyArray) {
-            collections.push(legacyArray);
-            shouldMigrate = true;
-          }
-        });
-
-        const normalizedCollections = collections.flatMap((collection) =>
-          collection
-            .map(normalizeQuestion)
-            .filter((question) => question !== null)
-        );
-
-        const merged = mergeQuestionCollections(
-          [],
-          normalizedCollections
-        );
-
-        /*
-         * 统一写入 questions，旧键不会被删除。
-         * 即使旧版本字段不完整，也会被规范化。
-         */
-        if (
-          shouldMigrate ||
-          primaryRaw !== JSON.stringify(merged)
-        ) {
-          try {
-            localStorage.setItem(
-              STORAGE_KEY,
-              JSON.stringify(merged)
-            );
-          } catch (error) {
-            console.warn("迁移问题数据失败：", error);
-          }
-        }
-
+        const normalized = collections.flatMap((items) => items.map(normalizeQuestion).filter(Boolean));
+        const merged = sortByCreated(mergeById([], normalized, (item) => `${item.text}__${item.createdAt}`));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
         return merged;
       }
 
-      function saveQuestions() {
+      function loadFeatureBacklog() {
+        const items = extractFeatureArray(safeParseJSON(localStorage.getItem(FEATURE_STORAGE_KEY)));
+        const normalized = items.map(normalizeFeatureItem).filter(Boolean);
+        const merged = sortByCreated(mergeById([], normalized, (item) => `${item.text}__${item.createdAt}`));
+        localStorage.setItem(FEATURE_STORAGE_KEY, JSON.stringify(merged));
+        return merged;
+      }
+
+      function loadTrash(key, normalizer, limit) {
+        const parsed = safeParseJSON(localStorage.getItem(key));
+        const items = Array.isArray(parsed) ? parsed : [];
+        const normalized = items.map(normalizer).filter(Boolean).map((item) => ({
+          ...item,
+          deletedAt: normalizeDate(item.deletedAt, item.updatedAt ?? item.createdAt)
+        }));
+        const result = sortByDeleted(normalized).slice(0, limit);
+        localStorage.setItem(key, JSON.stringify(result));
+        return result;
+      }
+
+      function saveAll() {
         try {
-          localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify(questions)
-          );
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(questions));
+          localStorage.setItem(FEATURE_STORAGE_KEY, JSON.stringify(featureBacklog));
+          localStorage.setItem(QUESTION_TRASH_KEY, JSON.stringify(questionTrash));
+          localStorage.setItem(FEATURE_TRASH_KEY, JSON.stringify(featureTrash));
         } catch (error) {
-          console.warn("保存问题失败：", error);
+          console.error("保存失败：", error);
           alert("数据保存失败，请检查浏览器的本地存储权限。");
         }
       }
 
-      function chooseRandomQuestionId() {
-        if (questions.length === 0) {
-          return null;
-        }
-
-        const randomIndex = Math.floor(
-          Math.random() * questions.length
-        );
-
-        return questions[randomIndex].id;
+      function hasBeenEdited(item) {
+        return (parseDate(item.updatedAt)?.getTime() || 0) > (parseDate(item.createdAt)?.getTime() || 0);
       }
 
-      function hasBeenEdited(question) {
-        const createdTime =
-          parseDate(question.createdAt)?.getTime() || 0;
-        const updatedTime =
-          parseDate(question.updatedAt)?.getTime() || 0;
-
-        return updatedTime > createdTime;
+      function chooseRandomQuestionId() {
+        if (!questions.length) return null;
+        return questions[Math.floor(Math.random() * questions.length)].id;
       }
 
       function renderDailyReview() {
-        if (questions.length === 0) {
+        if (!questions.length) {
           reviewQuestionId = null;
-          reviewQuestion.textContent =
-            "盒子还是空的，去添加第一个问题吧";
+          reviewQuestion.textContent = "盒子还是空的，去添加第一个问题吧";
           reviewQuestion.classList.add("review-empty");
           reviewNote.textContent = "";
           return;
         }
-
-        let question = questions.find(
-          (item) => item.id === reviewQuestionId
-        );
-
-        /*
-         * 如果正在回顾的问题被删除，
-         * 从剩余问题中重新随机选择。
-         */
+        let question = questions.find((item) => item.id === reviewQuestionId);
         if (!question) {
           reviewQuestionId = chooseRandomQuestionId();
-          question = questions.find(
-            (item) => item.id === reviewQuestionId
-          );
+          question = questions.find((item) => item.id === reviewQuestionId);
         }
-
-        if (!question) {
-          return;
-        }
-
-        /*
-         * 每日回顾始终使用 createdAt，
-         * 编辑不会改变这里展示的原始记录日期。
-         */
-        const dateText = formatDate(question.createdAt);
-
+        if (!question) return;
         reviewQuestion.classList.remove("review-empty");
         reviewQuestion.textContent = `“${question.text}”`;
-        reviewNote.textContent =
-          `这是你在 ${dateText} 记录的，现在有新的想法了吗？`;
+        reviewNote.textContent = `这是你在 ${formatDate(question.createdAt)} 记录的，现在有新的想法了吗？`;
+      }
+
+      function renderTags() {
+        const allTags = [...new Set(questions.flatMap((question) => question.tags))].sort((a, b) => a.localeCompare(b, "zh-CN"));
+        tagList.replaceChildren();
+        const allButton = document.createElement("button");
+        allButton.type = "button";
+        allButton.className = `tag-chip all-tag-chip${activeTag === null ? " active" : ""}`;
+        allButton.textContent = "🏷️ 全部";
+        allButton.addEventListener("click", () => {
+          activeTag = null;
+          renderTags();
+          renderQuestionList();
+        });
+        tagList.append(allButton);
+        allTags.forEach((tag) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `tag-chip${activeTag === tag ? " active" : ""}`;
+          button.textContent = `#${tag}`;
+          button.addEventListener("click", () => {
+            activeTag = tag;
+            renderTags();
+            renderQuestionList();
+          });
+          tagList.append(button);
+        });
+        activeFilterText.textContent = activeTag ? `正在查看 #${activeTag}` : `${allTags.length} 个标签`;
+      }
+
+      function createTimestampElement(item, createdLabel = "创建于", updatedLabel = "最后编辑于") {
+        const timestamp = document.createElement("div");
+        timestamp.className = "timestamp";
+        const created = document.createElement("span");
+        created.textContent = `${createdLabel} ${formatTime(item.createdAt)}`;
+        timestamp.append(created);
+        if (hasBeenEdited(item)) {
+          const separator = document.createElement("span");
+          separator.className = "timestamp-separator";
+          separator.textContent = "|";
+          const updated = document.createElement("span");
+          updated.textContent = `${updatedLabel} ${formatTime(item.updatedAt)}`;
+          timestamp.append(separator, updated);
+        }
+        return timestamp;
+      }
+
+      function createTagChips(tags) {
+        const wrap = document.createElement("div");
+        wrap.className = "question-tags";
+        tags.forEach((tag) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `tag-chip${activeTag === tag ? " active" : ""}`;
+          button.textContent = `#${tag}`;
+          button.addEventListener("click", () => {
+            activeTag = tag;
+            renderTags();
+            renderQuestionList();
+            window.scrollTo({ top: document.querySelector(".tags-panel").offsetTop - 16, behavior: "smooth" });
+          });
+          wrap.append(button);
+        });
+        return wrap;
       }
 
       function addQuestion(text) {
-        const cleanedText = text.trim();
-
-        if (!cleanedText) {
-          input.focus();
-          return;
-        }
-
+        const cleaned = text.trim();
+        if (!cleaned) return input.focus();
         const now = new Date().toISOString();
-
-        const newQuestion = {
-          id: createId("question"),
-          text: cleanedText,
-          createdAt: now,
-          updatedAt: now,
-          solved: false
+        const question = {
+          id: createId("question"), text: cleaned, createdAt: now, updatedAt: now,
+          solved: false, tags: extractTags(cleaned), comments: [], deletedComments: []
         };
-
-        questions.unshift(newQuestion);
-
-        if (!reviewQuestionId) {
-          reviewQuestionId = newQuestion.id;
-        }
-
-        saveQuestions();
-        render();
-
+        questions.unshift(question);
+        if (!reviewQuestionId) reviewQuestionId = question.id;
+        saveAll();
+        renderMain();
         input.value = "";
         input.focus();
       }
 
       function toggleSolved(id) {
-        questions = questions.map((question) =>
-          question.id === id
-            ? {
-                ...question,
-                solved: !question.solved
-              }
-            : question
-        );
-
-        saveQuestions();
-        render();
+        questions = questions.map((item) => item.id === id ? { ...item, solved: !item.solved } : item);
+        saveAll();
+        renderMain();
       }
 
-      function startEditingQuestion(id) {
-        editingQuestionId = id;
-        renderQuestionList();
-
-        window.requestAnimationFrame(() => {
-          const editInput = document.querySelector(
-            `[data-edit-question-id="${CSS.escape(id)}"]`
-          );
-
-          if (editInput) {
-            editInput.focus();
-            editInput.setSelectionRange(
-              editInput.value.length,
-              editInput.value.length
-            );
-          }
-        });
-      }
-
-      function cancelEditingQuestion() {
+      function saveQuestionEdit(id, text) {
+        const cleaned = text.trim();
+        if (!cleaned) return alert("问题内容不能为空。");
+        questions = questions.map((item) => item.id === id ? {
+          ...item,
+          text: cleaned,
+          tags: extractTags(cleaned),
+          updatedAt: new Date().toISOString()
+        } : item);
         editingQuestionId = null;
-        renderQuestionList();
+        saveAll();
+        renderMain();
       }
 
-      function saveQuestionEdit(id, newText) {
-        const cleanedText = newText.trim();
+      function moveQuestionToTrash(id) {
+        const question = questions.find((item) => item.id === id);
+        if (!question) return;
+        questions = questions.filter((item) => item.id !== id);
+        questionTrash.unshift({ ...question, deletedAt: new Date().toISOString() });
+        questionTrash = sortByDeleted(questionTrash).slice(0, QUESTION_TRASH_LIMIT);
+        selectedQuestionIds.delete(id);
+        if (editingQuestionId === id) editingQuestionId = null;
+        if (reviewQuestionId === id) reviewQuestionId = chooseRandomQuestionId();
+        saveAll();
+        renderMain();
+        renderQuestionTrash();
+      }
 
-        if (!cleanedText) {
-          alert("问题内容不能为空。");
-          return;
+      function restoreQuestion(id) {
+        const item = questionTrash.find((entry) => entry.id === id);
+        if (!item) return;
+        const restored = { ...item };
+        delete restored.deletedAt;
+        questionTrash = questionTrash.filter((entry) => entry.id !== id);
+        questions = sortByCreated(mergeById(questions, [normalizeQuestion(restored)], (entry) => `${entry.text}__${entry.createdAt}`));
+        saveAll();
+        renderMain();
+        renderQuestionTrash();
+      }
+
+      function renderQuestionTrash() {
+        questionTrashList.replaceChildren();
+        questionTrashCount.textContent = `${questionTrash.length} 条`;
+        questionTrashEmpty.hidden = questionTrash.length > 0;
+        questionTrash.forEach((item) => {
+          const li = document.createElement("li");
+          li.className = "trash-item";
+          const text = document.createElement("p");
+          text.className = "trash-text";
+          text.textContent = item.text;
+          const meta = document.createElement("div");
+          meta.className = "trash-meta";
+          const date = document.createElement("span");
+          date.className = "trash-date";
+          date.textContent = `删除于 ${formatTime(item.deletedAt)}`;
+          const actions = document.createElement("div");
+          actions.className = "trash-actions";
+          const restore = document.createElement("button");
+          restore.type = "button";
+          restore.className = "small-button restore-button";
+          restore.textContent = "↩️ 恢复";
+          restore.addEventListener("click", () => restoreQuestion(item.id));
+          actions.append(restore);
+          meta.append(date, actions);
+          li.append(text, meta);
+          questionTrashList.append(li);
+        });
+      }
+
+      function updateParent(type, parentId, updater) {
+        if (type === "question") {
+          questions = questions.map((item) => item.id === parentId ? updater(item) : item);
+        } else {
+          featureBacklog = featureBacklog.map((item) => item.id === parentId ? updater(item) : item);
+        }
+      }
+
+      function addComment(type, parentId, text) {
+        const cleaned = text.trim();
+        if (!cleaned) return;
+        const now = new Date().toISOString();
+        updateParent(type, parentId, (parent) => ({
+          ...parent,
+          comments: [...parent.comments, { id: createId("comment"), text: cleaned, createdAt: now, updatedAt: now }]
+        }));
+        saveAll();
+        type === "question" ? renderQuestionList() : renderFeatureBacklog();
+      }
+
+      function saveCommentEdit(type, parentId, commentId, text) {
+        const cleaned = text.trim();
+        if (!cleaned) return alert("评论内容不能为空。");
+        updateParent(type, parentId, (parent) => ({
+          ...parent,
+          comments: parent.comments.map((comment) => comment.id === commentId
+            ? { ...comment, text: cleaned, updatedAt: new Date().toISOString() }
+            : comment)
+        }));
+        editingComment = null;
+        saveAll();
+        type === "question" ? renderQuestionList() : renderFeatureBacklog();
+      }
+
+      function deleteComment(type, parentId, commentId) {
+        updateParent(type, parentId, (parent) => {
+          const comment = parent.comments.find((entry) => entry.id === commentId);
+          if (!comment) return parent;
+          return {
+            ...parent,
+            comments: parent.comments.filter((entry) => entry.id !== commentId),
+            deletedComments: [
+              { ...comment, deletedAt: new Date().toISOString() },
+              ...parent.deletedComments.filter((entry) => entry.id !== commentId)
+            ].slice(0, DELETED_COMMENT_LIMIT)
+          };
+        });
+        saveAll();
+        type === "question" ? renderQuestionList() : renderFeatureBacklog();
+      }
+
+      function restoreComment(type, parentId, commentId) {
+        updateParent(type, parentId, (parent) => {
+          const comment = parent.deletedComments.find((entry) => entry.id === commentId);
+          if (!comment) return parent;
+          const restored = { ...comment };
+          delete restored.deletedAt;
+          return {
+            ...parent,
+            comments: [...parent.comments, restored],
+            deletedComments: parent.deletedComments.filter((entry) => entry.id !== commentId)
+          };
+        });
+        saveAll();
+        type === "question" ? renderQuestionList() : renderFeatureBacklog();
+      }
+
+      function createCommentsSection(type, parent) {
+        const section = document.createElement("section");
+        section.className = "comments-section";
+        const openSet = type === "question" ? openQuestionComments : openFeatureComments;
+        const isOpen = openSet.has(parent.id);
+        const toggle = document.createElement("button");
+        toggle.type = "button";
+        toggle.className = "comments-toggle";
+        toggle.textContent = `${isOpen ? "▾" : "▸"} 💬 ${type === "question" ? "评论/延伸" : "评论"}（${parent.comments.length}）`;
+        toggle.addEventListener("click", () => {
+          isOpen ? openSet.delete(parent.id) : openSet.add(parent.id);
+          type === "question" ? renderQuestionList() : renderFeatureBacklog();
+        });
+        section.append(toggle);
+        if (!isOpen) return section;
+
+        const body = document.createElement("div");
+        body.className = "comments-body";
+        const commentForm = document.createElement("form");
+        commentForm.className = "comment-form";
+        const commentInput = document.createElement("textarea");
+        commentInput.className = "comment-input";
+        commentInput.placeholder = type === "question" ? "写下新的想法、线索或延伸..." : "补充这个想法的细节...";
+        commentInput.maxLength = 2000;
+        const formActions = document.createElement("div");
+        formActions.className = "comment-form-actions";
+        const submit = document.createElement("button");
+        submit.type = "submit";
+        submit.className = "small-button";
+        submit.textContent = "添加评论";
+        formActions.append(submit);
+        commentForm.append(commentInput, formActions);
+        commentForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          addComment(type, parent.id, commentInput.value);
+        });
+        body.append(commentForm);
+
+        if (parent.comments.length) {
+          const commentList = document.createElement("ul");
+          commentList.className = "comment-list";
+          parent.comments.forEach((comment) => {
+            const li = document.createElement("li");
+            li.className = "comment-item";
+            const isEditing = editingComment && editingComment.type === type && editingComment.parentId === parent.id && editingComment.commentId === comment.id;
+            if (isEditing) {
+              const editArea = document.createElement("div");
+              editArea.className = "comment-edit-area";
+              const editInput = document.createElement("textarea");
+              editInput.className = "comment-edit-input";
+              editInput.value = comment.text;
+              const controls = document.createElement("div");
+              controls.className = "edit-controls";
+              const cancel = document.createElement("button");
+              cancel.type = "button";
+              cancel.className = "small-button";
+              cancel.textContent = "取消";
+              cancel.addEventListener("click", () => {
+                editingComment = null;
+                type === "question" ? renderQuestionList() : renderFeatureBacklog();
+              });
+              const save = document.createElement("button");
+              save.type = "button";
+              save.className = "small-button save-edit-button";
+              save.textContent = "保存";
+              save.addEventListener("click", () => saveCommentEdit(type, parent.id, comment.id, editInput.value));
+              controls.append(cancel, save);
+              editArea.append(editInput, controls);
+              li.append(editArea);
+            } else {
+              const text = document.createElement("p");
+              text.className = "comment-text";
+              text.textContent = comment.text;
+              const meta = document.createElement("div");
+              meta.className = "comment-meta";
+              const date = document.createElement("span");
+              date.className = "comment-date";
+              date.textContent = hasBeenEdited(comment)
+                ? `创建于 ${formatTime(comment.createdAt)} · 编辑于 ${formatTime(comment.updatedAt)}`
+                : `创建于 ${formatTime(comment.createdAt)}`;
+              const actions = document.createElement("div");
+              actions.className = "comment-actions";
+              const edit = document.createElement("button");
+              edit.type = "button";
+              edit.className = "small-button";
+              edit.textContent = "编辑";
+              edit.addEventListener("click", () => {
+                editingComment = { type, parentId: parent.id, commentId: comment.id };
+                type === "question" ? renderQuestionList() : renderFeatureBacklog();
+              });
+              const remove = document.createElement("button");
+              remove.type = "button";
+              remove.className = "small-button comment-delete-button";
+              remove.textContent = "删除";
+              remove.addEventListener("click", () => deleteComment(type, parent.id, comment.id));
+              actions.append(edit, remove);
+              meta.append(date, actions);
+              li.append(text, meta);
+            }
+            commentList.append(li);
+          });
+          body.append(commentList);
         }
 
-        questions = questions.map((question) =>
-          question.id === id
-            ? {
-                ...question,
-                text: cleanedText,
-                updatedAt: new Date().toISOString()
-              }
-            : question
-        );
-
-        editingQuestionId = null;
-        saveQuestions();
-        render();
+        if (parent.deletedComments.length) {
+          const deletedBox = document.createElement("div");
+          deletedBox.className = "deleted-comments-box";
+          const title = document.createElement("p");
+          title.className = "deleted-comments-title";
+          title.textContent = "最近删除评论";
+          const deletedList = document.createElement("ul");
+          deletedList.className = "deleted-comment-list";
+          parent.deletedComments.forEach((comment) => {
+            const li = document.createElement("li");
+            li.className = "deleted-comment-item";
+            const text = document.createElement("p");
+            text.className = "deleted-comment-text";
+            text.textContent = `已删除评论：${comment.text}`;
+            const restore = document.createElement("button");
+            restore.type = "button";
+            restore.className = "small-button restore-button";
+            restore.textContent = "恢复";
+            restore.addEventListener("click", () => restoreComment(type, parent.id, comment.id));
+            li.append(text, restore);
+            deletedList.append(li);
+          });
+          deletedBox.append(title, deletedList);
+          body.append(deletedBox);
+        }
+        section.append(body);
+        return section;
       }
 
-      function deleteQuestion(id) {
-        questions = questions.filter(
-          (question) => question.id !== id
-        );
+      function createQuestionCard(question) {
+        const li = document.createElement("li");
+        li.className = `question-item${question.solved ? " solved" : ""}${editingQuestionId === question.id ? " editing" : ""}`;
+        const shell = document.createElement("div");
+        shell.className = questionSelectionMode ? "selectable-card" : "question-content";
 
-        if (editingQuestionId === id) {
-          editingQuestionId = null;
+        if (questionSelectionMode) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.className = "selection-checkbox";
+          checkbox.checked = selectedQuestionIds.has(question.id);
+          checkbox.setAttribute("aria-label", `选择问题：${question.text}`);
+          checkbox.addEventListener("change", () => {
+            checkbox.checked ? selectedQuestionIds.add(question.id) : selectedQuestionIds.delete(question.id);
+            updateQuestionSelectionBar();
+          });
+          shell.append(checkbox);
         }
 
-        if (reviewQuestionId === id) {
-          reviewQuestionId = chooseRandomQuestionId();
-        }
-
-        saveQuestions();
-        render();
-      }
-
-      function createTimestampElement(question) {
-        const timestamp = document.createElement("div");
-        timestamp.className = "timestamp";
-
-        const createdText = document.createElement("span");
-        createdText.textContent =
-          `创建于 ${formatTime(question.createdAt)}`;
-
-        timestamp.append(createdText);
-
-        if (hasBeenEdited(question)) {
-          const separator = document.createElement("span");
-          separator.className = "timestamp-separator";
-          separator.textContent = "|";
-
-          const updatedText = document.createElement("span");
-          updatedText.textContent =
-            `最后编辑于 ${formatTime(question.updatedAt)}`;
-
-          timestamp.append(separator, updatedText);
-        }
-
-        return timestamp;
-      }
-
-      function createNormalQuestionContent(question, item) {
-        const text = document.createElement("p");
-        text.className = "question-text";
-        text.textContent = question.text;
-
-        const meta = document.createElement("div");
-        meta.className = "question-meta";
-
-        const timestamp = createTimestampElement(question);
-
-        const actions = document.createElement("div");
-        actions.className = "actions";
-
-        const solveButton = document.createElement("button");
-        solveButton.type = "button";
-        solveButton.className =
-          `action-button solve-button${question.solved ? " active" : ""}`;
-        solveButton.textContent =
-          question.solved ? "重新打开" : "已解决";
-        solveButton.setAttribute(
-          "aria-label",
-          question.solved
-            ? "将问题重新标记为未解决"
-            : "将问题标记为已解决"
-        );
-
-        solveButton.addEventListener("click", () => {
-          toggleSolved(question.id);
-        });
-
-        const editButton = document.createElement("button");
-        editButton.type = "button";
-        editButton.className = "action-button edit-button";
-        editButton.textContent = "编辑";
-        editButton.setAttribute("aria-label", "编辑这个问题");
-
-        editButton.addEventListener("click", () => {
-          startEditingQuestion(question.id);
-        });
-
-        const deleteButton = document.createElement("button");
-        deleteButton.type = "button";
-        deleteButton.className =
-          "action-button delete-button";
-        deleteButton.textContent = "删除";
-        deleteButton.setAttribute("aria-label", "删除这个问题");
-
-        deleteButton.addEventListener("click", () => {
-          deleteQuestion(question.id);
-        });
-
-        actions.append(
-          solveButton,
-          editButton,
-          deleteButton
-        );
-
-        meta.append(timestamp, actions);
-        item.append(text, meta);
-      }
-
-      function createEditingQuestionContent(question, item) {
-        item.classList.add("editing");
-
-        const editArea = document.createElement("div");
-        editArea.className = "edit-area";
-
-        const editInput = document.createElement("textarea");
-        editInput.className = "edit-input";
-        editInput.value = question.text;
-        editInput.maxLength = 1000;
-        editInput.setAttribute(
-          "aria-label",
-          "编辑问题内容"
-        );
-        editInput.dataset.editQuestionId = question.id;
-
-        const controls = document.createElement("div");
-        controls.className = "edit-controls";
-
-        const cancelButton = document.createElement("button");
-        cancelButton.type = "button";
-        cancelButton.className =
-          "secondary-button cancel-edit-button";
-        cancelButton.textContent = "取消";
-
-        cancelButton.addEventListener("click", () => {
-          cancelEditingQuestion();
-        });
-
-        const saveButton = document.createElement("button");
-        saveButton.type = "button";
-        saveButton.className =
-          "secondary-button save-edit-button";
-        saveButton.textContent = "保存";
-
-        saveButton.addEventListener("click", () => {
-          saveQuestionEdit(question.id, editInput.value);
-        });
-
-        editInput.addEventListener("keydown", (event) => {
-          if (
-            event.key === "Enter" &&
-            (event.ctrlKey || event.metaKey) &&
-            !event.isComposing
-          ) {
-            event.preventDefault();
-            saveQuestionEdit(question.id, editInput.value);
+        const content = document.createElement("div");
+        content.className = "question-content";
+        if (editingQuestionId === question.id) {
+          const editArea = document.createElement("div");
+          editArea.className = "edit-area";
+          const editInput = document.createElement("textarea");
+          editInput.className = "edit-input";
+          editInput.value = question.text;
+          editInput.maxLength = 2000;
+          const controls = document.createElement("div");
+          controls.className = "edit-controls";
+          const cancel = document.createElement("button");
+          cancel.type = "button";
+          cancel.className = "secondary-button";
+          cancel.textContent = "取消";
+          cancel.addEventListener("click", () => {
+            editingQuestionId = null;
+            renderQuestionList();
+          });
+          const save = document.createElement("button");
+          save.type = "button";
+          save.className = "secondary-button save-edit-button";
+          save.textContent = "保存";
+          save.addEventListener("click", () => saveQuestionEdit(question.id, editInput.value));
+          controls.append(cancel, save);
+          editArea.append(editInput, controls);
+          content.append(editArea, createTimestampElement(question));
+        } else {
+          const text = document.createElement("p");
+          text.className = "question-text";
+          text.textContent = question.text;
+          content.append(text);
+          if (question.tags.length) content.append(createTagChips(question.tags));
+          const meta = document.createElement("div");
+          meta.className = "question-meta";
+          const actions = document.createElement("div");
+          actions.className = "actions";
+          if (!questionSelectionMode) {
+            const solve = document.createElement("button");
+            solve.type = "button";
+            solve.className = `action-button solve-button${question.solved ? " active" : ""}`;
+            solve.textContent = question.solved ? "重新打开" : "已解决";
+            solve.addEventListener("click", () => toggleSolved(question.id));
+            const edit = document.createElement("button");
+            edit.type = "button";
+            edit.className = "action-button";
+            edit.textContent = "编辑";
+            edit.addEventListener("click", () => {
+              editingQuestionId = question.id;
+              renderQuestionList();
+            });
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.className = "action-button delete-button";
+            remove.textContent = "删除";
+            remove.addEventListener("click", () => moveQuestionToTrash(question.id));
+            actions.append(solve, edit, remove);
           }
+          meta.append(createTimestampElement(question), actions);
+          content.append(meta);
+          if (!questionSelectionMode) content.append(createCommentsSection("question", question));
+        }
+        shell.append(content);
+        li.append(shell);
+        return li;
+      }
 
-          if (event.key === "Escape") {
-            event.preventDefault();
-            cancelEditingQuestion();
-          }
-        });
-
-        controls.append(cancelButton, saveButton);
-        editArea.append(editInput, controls);
-
-        const meta = document.createElement("div");
-        meta.className = "question-meta";
-        meta.append(createTimestampElement(question));
-
-        item.append(editArea, meta);
+      function getVisibleQuestions() {
+        return activeTag ? questions.filter((question) => question.tags.includes(activeTag)) : questions;
       }
 
       function renderQuestionList() {
+        const visible = getVisibleQuestions();
         list.replaceChildren();
-
         emptyState.hidden = questions.length > 0;
-        questionCount.textContent = `${questions.length} 个`;
-
-        questions.forEach((question) => {
-          const item = document.createElement("li");
-          item.className =
-            `question-item${question.solved ? " solved" : ""}`;
-
-          if (editingQuestionId === question.id) {
-            createEditingQuestionContent(question, item);
-          } else {
-            createNormalQuestionContent(question, item);
-          }
-
-          list.append(item);
-        });
+        filterEmptyState.hidden = questions.length === 0 || visible.length > 0;
+        questionCount.textContent = activeTag ? `${visible.length} / ${questions.length} 个` : `${questions.length} 个`;
+        visible.forEach((question) => list.append(createQuestionCard(question)));
+        updateQuestionSelectionBar();
       }
 
-      function render() {
-        renderDailyReview();
+      function updateQuestionSelectionBar() {
+        questionSelectionBar.hidden = !questionSelectionMode;
+        questionSelectionCount.textContent = `已选 ${selectedQuestionIds.size} 条`;
+      }
+
+      function setQuestionSelectionMode(enabled) {
+        questionSelectionMode = enabled;
+        if (!enabled) selectedQuestionIds.clear();
+        editingQuestionId = null;
         renderQuestionList();
       }
 
-      /* 数据导出与导入 */
+      function addFeatureIdea(text) {
+        const cleaned = text.trim();
+        if (!cleaned) return featureInput.focus();
+        const now = new Date().toISOString();
+        featureBacklog.unshift({
+          id: createId("feature"), text: cleaned, createdAt: now, updatedAt: now,
+          status: "pending", completedAt: null, revertedAt: null, comments: [], deletedComments: []
+        });
+        saveAll();
+        featureInput.value = "";
+        setActiveFeatureTab("list");
+      }
 
-      function exportQuestionData() {
+      function completeFeature(id) {
+        featureBacklog = featureBacklog.map((item) => item.id === id ? {
+          ...item, status: "completed", completedAt: new Date().toISOString()
+        } : item);
+        saveAll();
+        renderFeatureBacklog();
+      }
+
+      function rollbackFeature(id) {
+        featureBacklog = featureBacklog.map((item) => item.id === id ? {
+          ...item, status: "pending", completedAt: null, revertedAt: new Date().toISOString()
+        } : item);
+        saveAll();
+        renderFeatureBacklog();
+      }
+
+      function saveFeatureEdit(id, text) {
+        const cleaned = text.trim();
+        if (!cleaned) return alert("想法内容不能为空。");
+        featureBacklog = featureBacklog.map((item) => item.id === id ? {
+          ...item, text: cleaned, updatedAt: new Date().toISOString()
+        } : item);
+        editingFeatureId = null;
+        saveAll();
+        renderFeatureBacklog();
+      }
+
+      function moveFeatureToTrash(id) {
+        const item = featureBacklog.find((entry) => entry.id === id);
+        if (!item) return;
+        featureBacklog = featureBacklog.filter((entry) => entry.id !== id);
+        featureTrash.unshift({ ...item, deletedAt: new Date().toISOString() });
+        featureTrash = sortByDeleted(featureTrash).slice(0, FEATURE_TRASH_LIMIT);
+        selectedFeatureIds.delete(id);
+        if (editingFeatureId === id) editingFeatureId = null;
+        saveAll();
+        renderFeatureBacklog();
+        renderFeatureTrash();
+      }
+
+      function restoreFeature(id) {
+        const item = featureTrash.find((entry) => entry.id === id);
+        if (!item) return;
+        const restored = { ...item };
+        delete restored.deletedAt;
+        featureTrash = featureTrash.filter((entry) => entry.id !== id);
+        featureBacklog = sortByCreated(mergeById(featureBacklog, [normalizeFeatureItem(restored)], (entry) => `${entry.text}__${entry.createdAt}`));
+        saveAll();
+        renderFeatureBacklog();
+        renderFeatureTrash();
+      }
+
+      function createFeatureCard(item) {
+        const li = document.createElement("li");
+        li.className = `feature-item${item.status === "completed" ? " completed" : ""}`;
+        const shell = document.createElement("div");
+        shell.className = featureSelectionMode ? "selectable-card" : "feature-content";
+        if (featureSelectionMode) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.className = "selection-checkbox";
+          checkbox.checked = selectedFeatureIds.has(item.id);
+          checkbox.setAttribute("aria-label", `选择想法：${item.text}`);
+          checkbox.addEventListener("change", () => {
+            checkbox.checked ? selectedFeatureIds.add(item.id) : selectedFeatureIds.delete(item.id);
+            updateFeatureSelectionBar();
+          });
+          shell.append(checkbox);
+        }
+        const content = document.createElement("div");
+        content.className = "feature-content";
+
+        if (item.status === "completed" && !featureSelectionMode) {
+          const rollback = document.createElement("button");
+          rollback.type = "button";
+          rollback.className = "rollback-button";
+          rollback.textContent = "↩️";
+          rollback.title = "退回待实现";
+          rollback.setAttribute("aria-label", "退回待实现");
+          rollback.addEventListener("click", () => rollbackFeature(item.id));
+          li.append(rollback);
+        }
+
+        if (editingFeatureId === item.id) {
+          const editArea = document.createElement("div");
+          editArea.className = "feature-edit-area";
+          const editInput = document.createElement("textarea");
+          editInput.className = "feature-edit-input";
+          editInput.value = item.text;
+          editInput.maxLength = 2000;
+          const controls = document.createElement("div");
+          controls.className = "edit-controls";
+          const cancel = document.createElement("button");
+          cancel.type = "button";
+          cancel.className = "small-button";
+          cancel.textContent = "取消";
+          cancel.addEventListener("click", () => {
+            editingFeatureId = null;
+            renderFeatureBacklog();
+          });
+          const save = document.createElement("button");
+          save.type = "button";
+          save.className = "small-button save-edit-button";
+          save.textContent = "保存";
+          save.addEventListener("click", () => saveFeatureEdit(item.id, editInput.value));
+          controls.append(cancel, save);
+          editArea.append(editInput, controls);
+          content.append(editArea);
+        } else {
+          const text = document.createElement("p");
+          text.className = "feature-item-text";
+          text.textContent = item.text;
+          const date = document.createElement("p");
+          date.className = "feature-item-date";
+          const parts = [`记录于 ${formatTime(item.createdAt)}`];
+          if (hasBeenEdited(item)) parts.push(`最后编辑于 ${formatTime(item.updatedAt)}`);
+          if (item.status === "completed" && item.completedAt) parts.push(`实现于 ${formatTime(item.completedAt)}`);
+          if (item.revertedAt) parts.push(`最近回退于 ${formatTime(item.revertedAt)}`);
+          date.textContent = parts.join(" · ");
+          content.append(text, date);
+
+          if (!featureSelectionMode) {
+            const actions = document.createElement("div");
+            actions.className = "feature-item-actions";
+            if (item.status !== "completed") {
+              const done = document.createElement("button");
+              done.type = "button";
+              done.className = "feature-action-button feature-done-button";
+              done.textContent = "✅ 已实现";
+              done.addEventListener("click", () => completeFeature(item.id));
+              actions.append(done);
+            }
+            const edit = document.createElement("button");
+            edit.type = "button";
+            edit.className = "feature-action-button";
+            edit.textContent = "编辑";
+            edit.addEventListener("click", () => {
+              editingFeatureId = item.id;
+              renderFeatureBacklog();
+            });
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.className = "feature-action-button feature-delete-button";
+            remove.textContent = "🗑️ 删除";
+            remove.addEventListener("click", () => moveFeatureToTrash(item.id));
+            actions.append(edit, remove);
+            content.append(actions, createCommentsSection("feature", item));
+          }
+        }
+        shell.append(content);
+        li.append(shell);
+        return li;
+      }
+
+      function renderFeatureBacklog() {
+        const pending = featureBacklog.filter((item) => item.status !== "completed");
+        const completed = featureBacklog.filter((item) => item.status === "completed");
+        pendingFeatureList.replaceChildren();
+        completedFeatureList.replaceChildren();
+        pending.forEach((item) => pendingFeatureList.append(createFeatureCard(item)));
+        completed.forEach((item) => completedFeatureList.append(createFeatureCard(item)));
+        pendingFeatureEmpty.hidden = pending.length > 0;
+        completedFeatureEmpty.hidden = completed.length > 0;
+        pendingFeatureCount.textContent = `${pending.length} 条`;
+        completedFeatureCount.textContent = `${completed.length} 条`;
+        updateFeatureSelectionBar();
+      }
+
+      function renderFeatureTrash() {
+        featureTrashList.replaceChildren();
+        featureTrashEmpty.hidden = featureTrash.length > 0;
+        featureTrash.forEach((item) => {
+          const li = document.createElement("li");
+          li.className = "trash-item";
+          const text = document.createElement("p");
+          text.className = "trash-text";
+          text.textContent = item.text;
+          const meta = document.createElement("div");
+          meta.className = "trash-meta";
+          const date = document.createElement("span");
+          date.className = "trash-date";
+          date.textContent = `删除于 ${formatTime(item.deletedAt)}`;
+          const restore = document.createElement("button");
+          restore.type = "button";
+          restore.className = "small-button restore-button";
+          restore.textContent = "↩️ 恢复";
+          restore.addEventListener("click", () => restoreFeature(item.id));
+          meta.append(date, restore);
+          li.append(text, meta);
+          featureTrashList.append(li);
+        });
+      }
+
+      function updateFeatureSelectionBar() {
+        featureSelectionBar.hidden = !featureSelectionMode;
+        featureSelectionCount.textContent = `已选 ${selectedFeatureIds.size} 条`;
+      }
+
+      function setFeatureSelectionMode(enabled) {
+        featureSelectionMode = enabled;
+        if (!enabled) selectedFeatureIds.clear();
+        editingFeatureId = null;
+        renderFeatureBacklog();
+      }
+
+      function buildMarkdown() {
+        const selectedQuestions = questions.filter((item) => selectedQuestionIds.has(item.id));
+        const selectedFeatures = featureBacklog.filter((item) => selectedFeatureIds.has(item.id));
+        const lines = [
+          "# 我的问题盒 · 精选上下文",
+          `导出时间：${formatCompactDateTime()}`,
+          "",
+          `## 精选问题（${selectedQuestions.length} 条）`
+        ];
+        if (selectedQuestions.length) {
+          selectedQuestions.forEach((item, index) => {
+            const tags = item.tags.length ? ` ${item.tags.map((tag) => `#${tag}`).join(" ")}` : "";
+            lines.push(`${index + 1}. [${formatTime(item.createdAt)}] ${item.text}${tags}`);
+            lines.push(`   - 状态：${item.solved ? "已解决" : "待解决"}`);
+          });
+        }
+        lines.push("", `## 精选迭代想法（${selectedFeatures.length} 条）`);
+        if (selectedFeatures.length) {
+          selectedFeatures.forEach((item, index) => {
+            lines.push(`${index + 1}. [${formatTime(item.createdAt)}] ${item.text}`);
+            lines.push(`   - 状态：${item.status === "completed" ? "已实现" : "待实现"}`);
+          });
+        }
+        return lines.join("\n");
+      }
+
+      async function copyText(text) {
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+            textarea.style.pointerEvents = "none";
+            document.body.append(textarea);
+            textarea.focus();
+            textarea.select();
+            const success = document.execCommand("copy");
+            textarea.remove();
+            if (!success) throw new Error("复制命令执行失败");
+          }
+          alert("已复制到剪贴板");
+          return true;
+        } catch (error) {
+          console.error("复制失败：", error);
+          alert("复制失败，请手动选择并复制。");
+          return false;
+        }
+      }
+
+      async function confirmQuestionCopy() {
+        if (!selectedQuestionIds.size) return alert("请至少选择一条问题。");
+        const success = await copyText(buildMarkdown());
+        if (success) setQuestionSelectionMode(false);
+      }
+
+      async function confirmFeatureCopy() {
+        if (!selectedFeatureIds.size) return alert("请至少选择一条愿望。");
+        const success = await copyText(buildMarkdown());
+        if (success) setFeatureSelectionMode(false);
+      }
+
+      function exportData() {
         const backup = {
           app: "今日问题盒",
-          version: 2,
+          version: 3,
           exportedAt: new Date().toISOString(),
-          questions
+          questions,
+          featureBacklog,
+          questionsTrash: questionTrash,
+          featureBacklogTrash: featureTrash
         };
-
-        const json = JSON.stringify(backup, null, 2);
-        const blob = new Blob([json], {
-          type: "application/json;charset=utf-8"
-        });
-
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json;charset=utf-8" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-
         link.href = url;
-        link.download =
-          `question-box-backup-${formatBackupDate()}.json`;
-
+        link.download = `question-box-backup-${formatBackupDate()}.json`;
         document.body.append(link);
         link.click();
         link.remove();
-
-        window.setTimeout(() => {
-          URL.revokeObjectURL(url);
-        }, 0);
+        setTimeout(() => URL.revokeObjectURL(url), 0);
       }
 
-      async function importQuestionData(file) {
+      async function importData(file) {
         try {
-          const fileText = await file.text();
-          const parsed = JSON.parse(fileText);
-          const importedArray = extractQuestionArray(parsed);
+          const parsed = JSON.parse(await file.text());
+          let importedQuestions = [];
+          let importedFeatures = [];
+          let importedQuestionTrash = [];
+          let importedFeatureTrash = [];
 
-          if (!importedArray) {
-            throw new Error("未找到有效的问题列表");
+          if (Array.isArray(parsed)) {
+            importedQuestions = parsed.map(normalizeQuestion).filter(Boolean);
+          } else if (parsed && typeof parsed === "object") {
+            importedQuestions = (extractQuestionArray(parsed) || []).map(normalizeQuestion).filter(Boolean);
+            importedFeatures = extractFeatureArray(parsed).map(normalizeFeatureItem).filter(Boolean);
+            const qTrashRaw = parsed.questionsTrash ?? parsed.questions_trash ?? [];
+            const fTrashRaw = parsed.featureBacklogTrash ?? parsed.feature_backlog_trash ?? [];
+            importedQuestionTrash = (Array.isArray(qTrashRaw) ? qTrashRaw : []).map(normalizeQuestion).filter(Boolean).map((item) => ({
+              ...item, deletedAt: normalizeDate(item.deletedAt, item.updatedAt)
+            }));
+            importedFeatureTrash = (Array.isArray(fTrashRaw) ? fTrashRaw : []).map(normalizeFeatureItem).filter(Boolean).map((item) => ({
+              ...item, deletedAt: normalizeDate(item.deletedAt, item.updatedAt)
+            }));
           }
 
-          const normalizedImported = importedArray
-            .map(normalizeQuestion)
-            .filter((question) => question !== null);
-
-          if (normalizedImported.length === 0) {
-            alert("文件中没有可以导入的问题。");
-            return;
+          if (!importedQuestions.length && !importedFeatures.length && !importedQuestionTrash.length && !importedFeatureTrash.length) {
+            throw new Error("文件中没有可导入的数据");
           }
 
-          const originalCount = questions.length;
-
-          questions = mergeQuestionCollections(
-            questions,
-            normalizedImported
-          );
-
-          const addedCount = questions.length - originalCount;
-
-          saveQuestions();
-          render();
-
-          alert(
-            addedCount > 0
-              ? `导入完成，新增 ${addedCount} 条问题。`
-              : "导入完成，没有发现新的问题。"
-          );
+          const beforeQuestions = questions.length;
+          const beforeFeatures = featureBacklog.length;
+          questions = sortByCreated(mergeById(questions, importedQuestions, (item) => `${item.text}__${item.createdAt}`));
+          featureBacklog = sortByCreated(mergeById(featureBacklog, importedFeatures, (item) => `${item.text}__${item.createdAt}`));
+          questionTrash = sortByDeleted(mergeById(questionTrash, importedQuestionTrash, (item) => `${item.text}__${item.deletedAt}`)).slice(0, QUESTION_TRASH_LIMIT);
+          featureTrash = sortByDeleted(mergeById(featureTrash, importedFeatureTrash, (item) => `${item.text}__${item.deletedAt}`)).slice(0, FEATURE_TRASH_LIMIT);
+          saveAll();
+          renderEverything();
+          alert(`导入完成：新增问题 ${questions.length - beforeQuestions} 条，新增愿望 ${featureBacklog.length - beforeFeatures} 条。`);
         } catch (error) {
-          console.error("导入问题数据失败：", error);
-          alert(
-            "导入失败。请确认所选文件是有效的 JSON 备份文件。"
-          );
+          console.error("导入失败：", error);
+          alert("导入失败。请确认文件是有效的 JSON 备份。\n" + error.message);
         } finally {
           importFileInput.value = "";
         }
       }
 
-      /* 功能迭代清单 */
-
-      function extractFeatureArray(data) {
-        if (Array.isArray(data)) {
-          return data;
-        }
-
-        if (!data || typeof data !== "object") {
-          return [];
-        }
-
-        if (Array.isArray(data.items)) {
-          return data.items;
-        }
-
-        if (Array.isArray(data.features)) {
-          return data.features;
-        }
-
-        if (Array.isArray(data.backlog)) {
-          return data.backlog;
-        }
-
-        return [];
-      }
-
-      function normalizeFeatureItem(item) {
-        if (typeof item === "string") {
-          return {
-            id: createId("feature"),
-            text: item.trim(),
-            createdAt: new Date().toISOString(),
-            status: "pending",
-            completedAt: null
-          };
-        }
-
-        if (!item || typeof item !== "object") {
-          return null;
-        }
-
-        const text = String(
-          item.text ??
-          item.description ??
-          item.idea ??
-          item.content ??
-          ""
-        ).trim();
-
-        if (!text) {
-          return null;
-        }
-
-        const createdAt = normalizeDate(
-          item.createdAt ??
-          item.created_at ??
-          item.date ??
-          item.timestamp,
-          new Date().toISOString()
-        );
-
-        const isCompleted =
-          item.status === "completed" ||
-          item.status === "done" ||
-          item.completed === true ||
-          item.implemented === true;
-
-        const completedAt = isCompleted
-          ? normalizeDate(
-              item.completedAt ??
-              item.completed_at ??
-              item.implementedAt ??
-              item.finishedAt,
-              createdAt
-            )
-          : null;
-
-        return {
-          id:
-            item.id !== null && item.id !== undefined
-              ? String(item.id)
-              : createId("feature"),
-          text,
-          createdAt,
-          status: isCompleted ? "completed" : "pending",
-          completedAt
+      function setActiveFeatureTab(tab) {
+        activeFeatureTab = tab;
+        const map = {
+          add: [addFeatureTab, addFeaturePanel],
+          list: [featureListTab, featureListPanel],
+          trash: [featureTrashTab, featureTrashPanel]
         };
-      }
-
-      function loadFeatureBacklog() {
-        const raw = localStorage.getItem(FEATURE_STORAGE_KEY);
-        const parsed = safeParseJSON(raw);
-        const items = extractFeatureArray(parsed);
-
-        return items
-          .map(normalizeFeatureItem)
-          .filter((item) => item !== null)
-          .sort((a, b) => {
-            const timeA =
-              parseDate(a.createdAt)?.getTime() || 0;
-            const timeB =
-              parseDate(b.createdAt)?.getTime() || 0;
-
-            return timeB - timeA;
-          });
-      }
-
-      function saveFeatureBacklog() {
-        try {
-          localStorage.setItem(
-            FEATURE_STORAGE_KEY,
-            JSON.stringify(featureBacklog)
-          );
-        } catch (error) {
-          console.warn("保存功能迭代清单失败：", error);
-          alert("功能想法保存失败，请检查本地存储权限。");
-        }
-      }
-
-      function addFeatureIdea(text) {
-        const cleanedText = text.trim();
-
-        if (!cleanedText) {
-          featureInput.focus();
-          return;
-        }
-
-        featureBacklog.unshift({
-          id: createId("feature"),
-          text: cleanedText,
-          createdAt: new Date().toISOString(),
-          status: "pending",
-          completedAt: null
+        Object.entries(map).forEach(([name, [button, panel]]) => {
+          const active = name === tab;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-selected", String(active));
+          panel.hidden = !active;
         });
-
-        saveFeatureBacklog();
-        renderFeatureBacklog();
-
-        featureInput.value = "";
-        setActiveFeatureTab("list");
-      }
-
-      function completeFeatureIdea(id) {
-        featureBacklog = featureBacklog.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                status: "completed",
-                completedAt: new Date().toISOString()
-              }
-            : item
-        );
-
-        saveFeatureBacklog();
-        renderFeatureBacklog();
-      }
-
-      function deleteFeatureIdea(id) {
-        const confirmed = window.confirm(
-          "确定永久删除这条想法吗？"
-        );
-
-        if (!confirmed) {
-          return;
-        }
-
-        featureBacklog = featureBacklog.filter(
-          (item) => item.id !== id
-        );
-
-        saveFeatureBacklog();
-        renderFeatureBacklog();
-      }
-
-      function createFeatureItem(item) {
-        const listItem = document.createElement("li");
-        listItem.className =
-          `feature-item${item.status === "completed" ? " completed" : ""}`;
-
-        const text = document.createElement("p");
-        text.className = "feature-item-text";
-        text.textContent = item.text;
-
-        const date = document.createElement("p");
-        date.className = "feature-item-date";
-
-        if (item.status === "completed") {
-          date.textContent =
-            `记录于 ${formatDate(item.createdAt)} · ` +
-            `实现于 ${formatDate(item.completedAt)}`;
-        } else {
-          date.textContent =
-            `记录于 ${formatDate(item.createdAt)}`;
-        }
-
-        const actions = document.createElement("div");
-        actions.className = "feature-item-actions";
-
-        if (item.status !== "completed") {
-          const doneButton = document.createElement("button");
-          doneButton.type = "button";
-          doneButton.className =
-            "feature-action-button feature-done-button";
-          doneButton.textContent = "✅ 已实现";
-
-          doneButton.addEventListener("click", () => {
-            completeFeatureIdea(item.id);
-          });
-
-          actions.append(doneButton);
-        }
-
-        const deleteButton = document.createElement("button");
-        deleteButton.type = "button";
-        deleteButton.className =
-          "feature-action-button feature-delete-button";
-        deleteButton.textContent = "🗑️ 删除";
-
-        deleteButton.addEventListener("click", () => {
-          deleteFeatureIdea(item.id);
-        });
-
-        actions.append(deleteButton);
-        listItem.append(text, date, actions);
-
-        return listItem;
-      }
-
-      function renderFeatureBacklog() {
-        const pendingItems = featureBacklog.filter(
-          (item) => item.status !== "completed"
-        );
-
-        const completedItems = featureBacklog.filter(
-          (item) => item.status === "completed"
-        );
-
-        pendingFeatureList.replaceChildren();
-        completedFeatureList.replaceChildren();
-
-        pendingItems.forEach((item) => {
-          pendingFeatureList.append(createFeatureItem(item));
-        });
-
-        completedItems.forEach((item) => {
-          completedFeatureList.append(createFeatureItem(item));
-        });
-
-        pendingFeatureEmpty.hidden = pendingItems.length > 0;
-        completedFeatureEmpty.hidden =
-          completedItems.length > 0;
-
-        pendingFeatureCount.textContent =
-          `${pendingItems.length} 条`;
-
-        completedFeatureCount.textContent =
-          `${completedItems.length} 条`;
-      }
-
-      function setActiveFeatureTab(tabName) {
-        activeFeatureTab = tabName;
-
-        const isAddTab = tabName === "add";
-
-        addFeatureTab.classList.toggle("active", isAddTab);
-        featureListTab.classList.toggle(
-          "active",
-          !isAddTab
-        );
-
-        addFeatureTab.setAttribute(
-          "aria-selected",
-          String(isAddTab)
-        );
-
-        featureListTab.setAttribute(
-          "aria-selected",
-          String(!isAddTab)
-        );
-
-        addFeaturePanel.hidden = !isAddTab;
-        featureListPanel.hidden = isAddTab;
-
-        if (isAddTab) {
-          window.requestAnimationFrame(() => {
-            featureInput.focus();
-          });
-        }
+        if (tab !== "list" && featureSelectionMode) setFeatureSelectionMode(false);
+        if (tab === "add") requestAnimationFrame(() => featureInput.focus());
+        if (tab === "list") renderFeatureBacklog();
+        if (tab === "trash") renderFeatureTrash();
       }
 
       function setFeaturePanelOpen(open) {
         featurePanel.classList.toggle("open", open);
         panelOverlay.classList.toggle("open", open);
         document.body.classList.toggle("panel-open", open);
-
-        featurePanel.setAttribute(
-          "aria-hidden",
-          String(!open)
-        );
-
-        panelOverlay.setAttribute(
-          "aria-hidden",
-          String(!open)
-        );
-
-        featureFab.setAttribute(
-          "aria-expanded",
-          String(open)
-        );
-
+        featurePanel.setAttribute("aria-hidden", String(!open));
+        panelOverlay.setAttribute("aria-hidden", String(!open));
+        featureFab.setAttribute("aria-expanded", String(open));
         if (open) {
           renderFeatureBacklog();
-
-          window.requestAnimationFrame(() => {
-            if (activeFeatureTab === "add") {
-              featureInput.focus();
-            } else {
-              panelCloseButton.focus();
-            }
-          });
+          renderFeatureTrash();
         } else {
+          if (featureSelectionMode) setFeatureSelectionMode(false);
           featureFab.focus();
         }
       }
 
-      /* 事件绑定 */
+      function renderMain() {
+        renderDailyReview();
+        renderTags();
+        renderQuestionList();
+      }
+
+      function renderEverything() {
+        renderMain();
+        renderQuestionTrash();
+        renderFeatureBacklog();
+        renderFeatureTrash();
+      }
 
       form.addEventListener("submit", (event) => {
         event.preventDefault();
@@ -2196,93 +2677,75 @@
       });
 
       input.addEventListener("keydown", (event) => {
-        if (
-          event.key === "Enter" &&
-          !event.shiftKey &&
-          !event.isComposing
-        ) {
+        if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
           event.preventDefault();
           addQuestion(input.value);
         }
       });
 
-      exportButton.addEventListener("click", () => {
-        exportQuestionData();
+      questionSelectButton.addEventListener("click", () => setQuestionSelectionMode(true));
+      questionCancelSelection.addEventListener("click", () => setQuestionSelectionMode(false));
+      questionConfirmCopy.addEventListener("click", confirmQuestionCopy);
+
+      questionTrashToggle.addEventListener("click", () => {
+        const open = questionTrashPanel.hidden;
+        questionTrashPanel.hidden = !open;
+        questionTrashToggle.setAttribute("aria-expanded", String(open));
+        if (open) renderQuestionTrash();
       });
 
+      exportButton.addEventListener("click", exportData);
       importButton.addEventListener("click", () => {
-        const confirmed = window.confirm(
-          "导入将合并数据，确定吗？"
-        );
-
-        if (!confirmed) {
-          return;
-        }
-
+        if (!confirm("导入将合并数据，确定吗？")) return;
         importFileInput.value = "";
         importFileInput.click();
       });
-
-      importFileInput.addEventListener(
-        "change",
-        async (event) => {
-          const file = event.target.files?.[0];
-
-          if (!file) {
-            return;
-          }
-
-          await importQuestionData(file);
-        }
-      );
-
-      featureFab.addEventListener("click", () => {
-        setFeaturePanelOpen(true);
+      importFileInput.addEventListener("change", async (event) => {
+        const file = event.target.files?.[0];
+        if (file) await importData(file);
       });
 
-      panelCloseButton.addEventListener("click", () => {
-        setFeaturePanelOpen(false);
-      });
-
-      panelOverlay.addEventListener("click", () => {
-        setFeaturePanelOpen(false);
-      });
-
-      addFeatureTab.addEventListener("click", () => {
-        setActiveFeatureTab("add");
-      });
-
-      featureListTab.addEventListener("click", () => {
-        setActiveFeatureTab("list");
-      });
+      featureFab.addEventListener("click", () => setFeaturePanelOpen(true));
+      panelCloseButton.addEventListener("click", () => setFeaturePanelOpen(false));
+      panelOverlay.addEventListener("click", () => setFeaturePanelOpen(false));
+      addFeatureTab.addEventListener("click", () => setActiveFeatureTab("add"));
+      featureListTab.addEventListener("click", () => setActiveFeatureTab("list"));
+      featureTrashTab.addEventListener("click", () => setActiveFeatureTab("trash"));
 
       featureForm.addEventListener("submit", (event) => {
         event.preventDefault();
         addFeatureIdea(featureInput.value);
       });
-
       featureInput.addEventListener("keydown", (event) => {
-        if (
-          event.key === "Enter" &&
-          (event.ctrlKey || event.metaKey) &&
-          !event.isComposing
-        ) {
+        if (event.key === "Enter" && (event.ctrlKey || event.metaKey) && !event.isComposing) {
           event.preventDefault();
           addFeatureIdea(featureInput.value);
         }
       });
 
+      featureSelectButton.addEventListener("click", () => setFeatureSelectionMode(true));
+      featureCancelSelection.addEventListener("click", () => setFeatureSelectionMode(false));
+      featureConfirmCopy.addEventListener("click", confirmFeatureCopy);
+
       document.addEventListener("keydown", (event) => {
-        if (
-          event.key === "Escape" &&
-          featurePanel.classList.contains("open")
-        ) {
-          setFeaturePanelOpen(false);
+        if (event.key !== "Escape") return;
+        if (questionSelectionMode) return setQuestionSelectionMode(false);
+        if (featureSelectionMode) return setFeatureSelectionMode(false);
+        if (!questionTrashPanel.hidden) {
+          questionTrashPanel.hidden = true;
+          questionTrashToggle.setAttribute("aria-expanded", "false");
+          return;
         }
+        if (featurePanel.classList.contains("open")) setFeaturePanelOpen(false);
       });
 
-      render();
-      renderFeatureBacklog();
+      questions = loadQuestions();
+      featureBacklog = loadFeatureBacklog();
+      questionTrash = loadTrash(QUESTION_TRASH_KEY, normalizeQuestion, QUESTION_TRASH_LIMIT);
+      featureTrash = loadTrash(FEATURE_TRASH_KEY, normalizeFeatureItem, FEATURE_TRASH_LIMIT);
+      reviewQuestionId = chooseRandomQuestionId();
+      saveAll();
+      renderEverything();
     })();
   </script>
 </body>
