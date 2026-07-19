@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
+  <title>今日问题盒</title>
+
+  <style>
+    :root {
+      --background: #f4f0e8;
+      --surface: #faf8f3;
+      --surface-hover: #f0ece4;
+      --review-background: #e9e4dc;
+      --review-border: #d5cec2;
+      --text: #3f3b35;
+      --muted: #8a8378;
+      --border: #d9d2c6;
+      --accent: #747d68;
+      --accent-soft: #e3e7dd;
+      --danger: #9a655e;
+      --shadow: 0 16px 45px rgba(73, 64, 52, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 0 20px 48px;
+      display: flex;
+      justify-content: center;
+      color: var(--text);
+      background:
+        radial-gradient(
+          circle at top,
+          rgba(255, 255, 255, 0.75),
+          transparent 42%
+        ),
+        var(--background);
+      font-family:
+        "Noto Serif SC",
+        "Source Han Serif SC",
+        "Songti SC",
+        "STSong",
+        Georgia,
+        serif;
+    }
+
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    .app {
+      width: min(760px, 100%);
+    }
+
+    .daily-review {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      margin-bottom: 44px;
+      padding: 20px 24px;
+      background: rgba(233, 228, 220, 0.96);
+      border: 1px solid var(--review-border);
+      border-top: 0;
+      border-radius: 0 0 18px 18px;
+      box-shadow: 0 10px 30px rgba(73, 64, 52, 0.07);
+      backdrop-filter: blur(10px);
+    }
+
+    .review-label {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+    }
+
+    .review-question {
+      margin: 0;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+      font-size: clamp(17px, 3vw, 21px);
+      line-height: 1.7;
+    }
+
+    .review-note {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        sans-serif;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .review-empty {
+      color: var(--muted);
+    }
+
+    .header {
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    .title {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 44px);
+      font-weight: 500;
+      letter-spacing: 0.12em;
+    }
+
+    .subtitle {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing: 0.08em;
+    }
+
+    .input-card {
+      padding: 18px;
+      background: rgba(250, 248, 243, 0.9);
+      border: 1px solid rgba(217, 210, 198, 0.9);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    #questionInput {
+      display: block;
+      width: 100%;
+      min-height: 150px;
+      padding: 20px;
+      resize: vertical;
+      color: var(--text);
+      caret-color: var(--accent);
+      background: transparent;
+      border: 0;
+      outline: none;
+      font-size: 20px;
+      line-height: 1.8;
+    }
+
+    #questionInput::placeholder {
+      color: #aaa296;
+    }
+
+    .input-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 10px 2px;
+      border-top: 1px solid var(--border);
+    }
+
+    .hint {
+      color: var(--muted);
+      font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        sans-serif;
+      font-size: 12px;
+    }
+
+    .submit-button {
+      padding: 9px 17px;
+      color: #f9f7f2;
+      background: var(--accent);
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      transition:
+        transform 160ms ease,
+        opacity 160ms ease;
+    }
+
+    .submit-button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .submit-button:active {
+      transform: translateY(0);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 36px 4px 14px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+    }
+
+    .question-count {
+      color: var(--muted);
+      font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        sans-serif;
+      font-size: 13px;
+    }
+
+    .question-list {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .question-item {
+      padding: 20px 22px;
+      overflow: hidden;
+      background: rgba(250, 248, 243, 0.78);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      animation: appear 240ms ease both;
+      transition:
+        background 180ms ease,
+        border-color 180ms ease,
+        opacity 180ms ease;
+    }
+
+    .question-item:hover {
+      background: var(--surface);
+    }
+
+    .question-item.solved {
+      background: rgba(227, 231, 221, 0.58);
+      border-color: #cbd1c2;
+    }
+
+    .question-item.solved .question-text {
+      color: var(--muted);
+      text-decoration: line-through;
+      text-decoration-thickness: 1px;
+    }
+
+    .question-text {
+      margin: 0;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+      font-size: 17px;
+      line-height: 1.75;
+      transition: color 180ms ease;
+    }
+
+    .question-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .timestamp {
+      color: var(--muted);
+      font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        sans-serif;
+      font-size: 12px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-button {
+      padding: 7px 11px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+      font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        sans-serif;
+      font-size: 12px;
+      transition:
+        color 160ms ease,
+        background 160ms ease,
+        border-color 160ms ease;
+    }
+
+    .action-button:hover {
+      color: var(--text);
+      background: var(--surface-hover);
+    }
+
+    .solve-button.active {
+      color: #58634f;
+      background: var(--accent-soft);
+      border-color: #bbc3b0;
+    }
+
+    .delete-button:hover {
+      color: var(--danger);
+      background: #f2e7e4;
+      border-color: #d9bbb5;
+    }
+
+    .empty-state {
+      padding: 36px 20px;
+      color: var(--muted);
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      line-height: 1.8;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 0 14px 30px;
+      }
+
+      .daily-review {
+        margin-bottom: 34px;
+        padding: 17px 18px;
+        border-radius: 0 0 16px 16px;
+      }
+
+      #questionInput {
+        min-height: 130px;
+        padding: 16px 10px;
+        font-size: 18px;
+      }
+
+      .input-card {
+        padding: 14px;
+        border-radius: 17px;
+      }
+
+      .input-footer {
+        align-items: flex-end;
+      }
+
+      .question-item {
+        padding: 18px;
+      }
+
+      .question-meta {
+        align-items: flex-end;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <aside class="daily-review" aria-labelledby="reviewLabel">
+      <p id="reviewLabel" class="review-label">每日回顾</p>
+      <p id="reviewQuestion" class="review-question"></p>
+      <p id="reviewNote" class="review-note"></p>
+    </aside>
+
+    <header class="header">
+      <h1 class="title">今日问题盒</h1>
+      <p class="subtitle">先把问题放在这里，不必立刻回答。</p>
+    </header>
+
+    <form id="questionForm" class="input-card">
+      <textarea
+        id="questionInput"
+        placeholder="此刻我脑子里卡着什么..."
+        aria-label="输入一个问题"
+        maxlength="1000"
+        autofocus
+      ></textarea>
+
+      <div class="input-footer">
+        <span class="hint">回车放入问题盒 · Shift + 回车换行</span>
+        <button class="submit-button" type="submit">放进去</button>
+      </div>
+    </form>
+
+    <section aria-labelledby="listTitle">
+      <div class="section-header">
+        <h2 id="listTitle" class="section-title">盒子里的问题</h2>
+        <span id="questionCount" class="question-count"></span>
+      </div>
+
+      <ul id="questionList" class="question-list"></ul>
+
+      <div id="emptyState" class="empty-state">
+        盒子还是空的。<br />
+        有些问题被写下来以后，就已经松动了一点。
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      /*
+       * 沿用旧版本的存储名称，
+       * 直接替换文件后，之前保存的问题仍会保留。
+       */
+      const STORAGE_KEY = "today-question-box-v1";
+
+      const form = document.getElementById("questionForm");
+      const input = document.getElementById("questionInput");
+      const list = document.getElementById("questionList");
+      const emptyState = document.getElementById("emptyState");
+      const questionCount = document.getElementById("questionCount");
+      const reviewQuestion = document.getElementById("reviewQuestion");
+      const reviewNote = document.getElementById("reviewNote");
+
+      let questions = loadQuestions();
+      let reviewQuestionId = chooseRandomQuestionId();
+
+      function loadQuestions() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          const parsed = saved ? JSON.parse(saved) : [];
+
+          if (!Array.isArray(parsed)) {
+            return [];
+          }
+
+          return parsed
+            .filter(
+              (item) =>
+                item &&
+                typeof item.id === "string" &&
+                typeof item.text === "string" &&
+                typeof item.createdAt === "string"
+            )
+            .map((item) => ({
+              ...item,
+              solved: Boolean(item.solved)
+            }));
+        } catch (error) {
+          console.warn("读取本地问题失败：", error);
+          return [];
+        }
+      }
+
+      function saveQuestions() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(questions));
+        } catch (error) {
+          console.warn("保存本地问题失败：", error);
+        }
+      }
+
+      function chooseRandomQuestionId() {
+        if (questions.length === 0) {
+          return null;
+        }
+
+        const randomIndex = Math.floor(Math.random() * questions.length);
+        return questions[randomIndex].id;
+      }
+
+      function createId() {
+        if (window.crypto && typeof window.crypto.randomUUID === "function") {
+          return window.crypto.randomUUID();
+        }
+
+        return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      }
+
+      function parseDate(isoString) {
+        const date = new Date(isoString);
+        return Number.isNaN(date.getTime()) ? null : date;
+      }
+
+      function formatTime(isoString) {
+        const date = parseDate(isoString);
+
+        if (!date) {
+          return "";
+        }
+
+        return new Intl.DateTimeFormat("zh-CN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false
+        }).format(date);
+      }
+
+      function formatReviewDate(isoString) {
+        const date = parseDate(isoString);
+
+        if (!date) {
+          return "某一天";
+        }
+
+        return new Intl.DateTimeFormat("zh-CN", {
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        }).format(date);
+      }
+
+      function renderDailyReview() {
+        if (questions.length === 0) {
+          reviewQuestionId = null;
+          reviewQuestion.textContent =
+            "盒子还是空的，去添加第一个问题吧";
+          reviewQuestion.classList.add("review-empty");
+          reviewNote.textContent = "";
+          return;
+        }
+
+        let question = questions.find(
+          (item) => item.id === reviewQuestionId
+        );
+
+        /*
+         * 如果正在回顾的问题被删除，
+         * 就从剩余问题中重新随机选择一条。
+         */
+        if (!question) {
+          reviewQuestionId = chooseRandomQuestionId();
+          question = questions.find(
+            (item) => item.id === reviewQuestionId
+          );
+        }
+
+        if (!question) {
+          return;
+        }
+
+        const dateText = formatReviewDate(question.createdAt);
+
+        reviewQuestion.classList.remove("review-empty");
+        reviewQuestion.textContent = `“${question.text}”`;
+        reviewNote.textContent =
+          `这是你在 ${dateText} 记录的，现在有新的想法了吗？`;
+      }
+
+      function addQuestion(text) {
+        const cleanedText = text.trim();
+
+        if (!cleanedText) {
+          input.focus();
+          return;
+        }
+
+        const newQuestion = {
+          id: createId(),
+          text: cleanedText,
+          createdAt: new Date().toISOString(),
+          solved: false
+        };
+
+        questions.unshift(newQuestion);
+
+        /*
+         * 盒子原本为空时，把第一个问题同步放进每日回顾。
+         */
+        if (!reviewQuestionId) {
+          reviewQuestionId = newQuestion.id;
+        }
+
+        saveQuestions();
+        render();
+
+        input.value = "";
+        input.focus();
+      }
+
+      function toggleSolved(id) {
+        questions = questions.map((question) =>
+          question.id === id
+            ? {
+                ...question,
+                solved: !question.solved
+              }
+            : question
+        );
+
+        saveQuestions();
+        render();
+      }
+
+      function deleteQuestion(id) {
+        questions = questions.filter(
+          (question) => question.id !== id
+        );
+
+        if (reviewQuestionId === id) {
+          reviewQuestionId = chooseRandomQuestionId();
+        }
+
+        saveQuestions();
+        render();
+      }
+
+      function renderQuestionList() {
+        list.replaceChildren();
+
+        emptyState.hidden = questions.length > 0;
+        questionCount.textContent = `${questions.length} 个`;
+
+        questions.forEach((question) => {
+          const item = document.createElement("li");
+          item.className =
+            `question-item${question.solved ? " solved" : ""}`;
+
+          const text = document.createElement("p");
+          text.className = "question-text";
+          text.textContent = question.text;
+
+          const meta = document.createElement("div");
+          meta.className = "question-meta";
+
+          const timestamp = document.createElement("time");
+          timestamp.className = "timestamp";
+          timestamp.dateTime = question.createdAt;
+          timestamp.textContent = formatTime(question.createdAt);
+
+          const actions = document.createElement("div");
+          actions.className = "actions";
+
+          const solveButton = document.createElement("button");
+          solveButton.type = "button";
+          solveButton.className =
+            `action-button solve-button${question.solved ? " active" : ""}`;
+          solveButton.textContent =
+            question.solved ? "重新打开" : "已解决";
+          solveButton.setAttribute(
+            "aria-label",
+            question.solved
+              ? "将问题重新标记为未解决"
+              : "将问题标记为已解决"
+          );
+
+          solveButton.addEventListener("click", () => {
+            toggleSolved(question.id);
+          });
+
+          const deleteButton = document.createElement("button");
+          deleteButton.type = "button";
+          deleteButton.className = "action-button delete-button";
+          deleteButton.textContent = "删除";
+          deleteButton.setAttribute("aria-label", "删除这个问题");
+
+          deleteButton.addEventListener("click", () => {
+            deleteQuestion(question.id);
+          });
+
+          actions.append(solveButton, deleteButton);
+          meta.append(timestamp, actions);
+          item.append(text, meta);
+          list.append(item);
+        });
+      }
+
+      function render() {
+        renderDailyReview();
+        renderQuestionList();
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        addQuestion(input.value);
+      });
+
+      input.addEventListener("keydown", (event) => {
+        if (
+          event.key === "Enter" &&
+          !event.shiftKey &&
+          !event.isComposing
+        ) {
+          event.preventDefault();
+          addQuestion(input.value);
+        }
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
