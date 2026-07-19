@@ -1534,6 +1534,99 @@
       background: #f7f3ec;
     }
 
+    .question-load-more {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 3px 0 6px;
+      color: #91897d;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .load-more-button {
+      padding: 4px 8px;
+      color: #777065;
+      background: transparent;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+    }
+
+    .load-more-button:hover {
+      color: var(--text);
+      background: rgba(226, 221, 212, 0.58);
+    }
+
+    .select-all-button {
+      white-space: nowrap;
+    }
+
+    .select-all-button:disabled {
+      cursor: default;
+      opacity: 0.45;
+    }
+
+    .feature-item:not(.selecting) {
+      padding-left: 42px;
+    }
+
+    .priority-controls {
+      position: absolute;
+      top: 15px;
+      left: 12px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .priority-button {
+      width: 16px;
+      height: 16px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .priority-dot {
+      width: 10px;
+      height: 10px;
+      border: 1.5px solid var(--priority-color);
+      border-radius: 50%;
+      background: transparent;
+      opacity: 0.42;
+      transform: scale(0.9);
+      transition: opacity 150ms ease, transform 150ms ease, background 150ms ease, box-shadow 150ms ease;
+    }
+
+    .priority-button:hover .priority-dot {
+      opacity: 0.78;
+      transform: scale(1.06);
+    }
+
+    .priority-button.active .priority-dot {
+      background: var(--priority-color);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--priority-color) 18%, transparent);
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .priority-high { --priority-color: #c96f66; }
+    .priority-medium { --priority-color: #c9a34f; }
+    .priority-low { --priority-color: #75a078; }
+
     @media (max-width: 600px) {
       body {
         padding-inline: 12px;
@@ -1625,6 +1718,11 @@
 
       <ul id="questionList" class="question-list"></ul>
 
+      <div id="questionLoadMore" class="question-load-more" hidden>
+        <span id="questionLoadMoreText"></span>
+        <button id="questionLoadMoreButton" class="load-more-button" type="button">[加载更多 ↓]</button>
+      </div>
+
       <div id="emptyState" class="empty-state">
         盒子还是空的，但没关系。<br />
         有些问题被写下来以后，就已经松动了一点。输入框在上面 ↑
@@ -1672,6 +1770,7 @@
 
   <div id="questionSelectionBar" class="selection-bar" hidden>
     <span id="questionSelectionCount" class="selection-count">已选 0 条</span>
+    <button id="questionToggleSelectAll" class="secondary-button select-all-button" type="button">☑️ 全选</button>
     <button id="questionConfirmCopy" class="secondary-button confirm-copy-button" type="button">确认复制</button>
     <button id="questionCancelSelection" class="secondary-button" type="button">取消</button>
   </div>
@@ -1759,6 +1858,7 @@
 
     <div id="featureSelectionBar" class="feature-selection-bar" hidden>
       <span id="featureSelectionCount" class="selection-count">已选 0 条</span>
+      <button id="featureToggleSelectAll" class="secondary-button select-all-button" type="button">☑️ 全选</button>
       <button id="featureConfirmCopy" class="secondary-button confirm-copy-button" type="button">确认复制</button>
       <button id="featureCancelSelection" class="secondary-button" type="button">取消</button>
     </div>
@@ -1776,6 +1876,8 @@
       const QUESTION_TRASH_LIMIT = 5;
       const FEATURE_TRASH_LIMIT = 5;
       const DELETED_COMMENT_LIMIT = 3;
+      const QUESTION_PAGE_SIZE = 10;
+      const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
 
       const $ = (id) => document.getElementById(id);
 
@@ -1785,6 +1887,9 @@
       const emptyState = $("emptyState");
       const filterEmptyState = $("filterEmptyState");
       const questionCount = $("questionCount");
+      const questionLoadMore = $("questionLoadMore");
+      const questionLoadMoreText = $("questionLoadMoreText");
+      const questionLoadMoreButton = $("questionLoadMoreButton");
       const reviewQuestion = $("reviewQuestion");
       const reviewNote = $("reviewNote");
       const tagList = $("tagList");
@@ -1810,6 +1915,7 @@
       const questionSelectButton = $("questionSelectButton");
       const questionSelectionBar = $("questionSelectionBar");
       const questionSelectionCount = $("questionSelectionCount");
+      const questionToggleSelectAll = $("questionToggleSelectAll");
       const questionConfirmCopy = $("questionConfirmCopy");
       const questionCancelSelection = $("questionCancelSelection");
 
@@ -1837,6 +1943,7 @@
       const featureSelectButton = $("featureSelectButton");
       const featureSelectionBar = $("featureSelectionBar");
       const featureSelectionCount = $("featureSelectionCount");
+      const featureToggleSelectAll = $("featureToggleSelectAll");
       const featureConfirmCopy = $("featureConfirmCopy");
       const featureCancelSelection = $("featureCancelSelection");
 
@@ -1850,6 +1957,7 @@
       let editingComment = null;
       let activeTag = null;
       let activeFeatureTab = "add";
+      let questionVisibleLimit = QUESTION_PAGE_SIZE;
       let questionSelectionMode = false;
       let featureSelectionMode = false;
       const selectedQuestionIds = new Set();
@@ -2119,12 +2227,16 @@
         };
       }
 
+      function normalizePriority(value) {
+        return Object.prototype.hasOwnProperty.call(PRIORITY_ORDER, value) ? value : "medium";
+      }
+
       function normalizeFeatureItem(item) {
         if (typeof item === "string") {
           const now = new Date().toISOString();
           return {
             id: createId("feature"), text: item.trim(), createdAt: now, updatedAt: now,
-            status: "pending", completedAt: null, revertedAt: null, comments: [], deletedComments: []
+            status: "pending", priority: "medium", completedAt: null, revertedAt: null, comments: [], deletedComments: []
           };
         }
         if (!item || typeof item !== "object") return null;
@@ -2139,6 +2251,7 @@
           createdAt,
           updatedAt,
           status: completed ? "completed" : "pending",
+          priority: normalizePriority(item.priority),
           completedAt: completed
             ? normalizeDate(item.completedAt ?? item.completed_at ?? item.implementedAt ?? item.finishedAt, updatedAt)
             : null,
@@ -2293,6 +2406,8 @@
         applyTagStyle(allButton, "其他");
         allButton.addEventListener("click", () => {
           activeTag = null;
+          questionVisibleLimit = QUESTION_PAGE_SIZE;
+          selectedQuestionIds.clear();
           renderTags();
           renderQuestionList();
         });
@@ -2305,6 +2420,8 @@
           applyTagStyle(button, tag);
           button.addEventListener("click", () => {
             activeTag = tag;
+            questionVisibleLimit = QUESTION_PAGE_SIZE;
+            selectedQuestionIds.clear();
             renderTags();
             renderQuestionList();
           });
@@ -2343,6 +2460,8 @@
           if (filterable) {
             button.addEventListener("click", () => {
               activeTag = tag;
+              questionVisibleLimit = QUESTION_PAGE_SIZE;
+              selectedQuestionIds.clear();
               renderTags();
               renderQuestionList();
               window.scrollTo({ top: document.querySelector(".tags-panel").offsetTop - 16, behavior: "smooth" });
@@ -2365,6 +2484,7 @@
           solved: false, tags: extractTags(cleaned), comments: [], deletedComments: []
         };
         questions.unshift(question);
+        questionVisibleLimit = QUESTION_PAGE_SIZE;
         if (!reviewQuestionId) reviewQuestionId = question.id;
         saveAll();
         renderMain();
@@ -2766,23 +2886,61 @@
       }
 
       function getVisibleQuestions() {
-        return activeTag ? questions.filter((question) => question.tags.includes(activeTag)) : questions;
+        const filtered = activeTag
+          ? questions.filter((question) => question.tags.includes(activeTag))
+          : [...questions];
+        return sortByCreated(filtered);
+      }
+
+      function getDisplayedQuestions() {
+        return getVisibleQuestions().slice(0, questionVisibleLimit);
+      }
+
+      function renderQuestionLoadMore(total, shown) {
+        questionLoadMore.hidden = total <= QUESTION_PAGE_SIZE;
+        if (total <= QUESTION_PAGE_SIZE) return;
+
+        if (shown < total) {
+          questionLoadMoreText.textContent = `共 ${total} 条问题，当前显示 ${shown} 条`;
+          questionLoadMoreButton.hidden = false;
+          questionLoadMoreButton.textContent = "[加载更多 ↓]";
+        } else {
+          questionLoadMoreText.textContent = `共 ${total} 条，已显示全部`;
+          questionLoadMoreButton.hidden = true;
+        }
       }
 
       function renderQuestionList() {
         const visible = getVisibleQuestions();
+        const displayed = visible.slice(0, questionVisibleLimit);
         list.replaceChildren();
         emptyState.hidden = questions.length > 0;
         firstQuestionHint.hidden = questions.length > 0;
         filterEmptyState.hidden = questions.length === 0 || visible.length > 0;
         questionCount.textContent = activeTag ? `${visible.length} / ${questions.length} 个` : `${questions.length} 个`;
-        visible.forEach((question) => list.append(createQuestionCard(question)));
+        displayed.forEach((question) => list.append(createQuestionCard(question)));
+        renderQuestionLoadMore(visible.length, displayed.length);
         updateQuestionSelectionBar();
+      }
+
+      function getSelectableQuestionIds() {
+        return getDisplayedQuestions().map((item) => item.id);
       }
 
       function updateQuestionSelectionBar() {
         questionSelectionBar.hidden = !questionSelectionMode;
         questionSelectionCount.textContent = `已选 ${selectedQuestionIds.size} 条`;
+        const ids = getSelectableQuestionIds();
+        const allSelected = ids.length > 0 && ids.every((id) => selectedQuestionIds.has(id));
+        questionToggleSelectAll.disabled = ids.length === 0;
+        questionToggleSelectAll.textContent = allSelected ? "⬜ 取消全选" : "☑️ 全选";
+      }
+
+      function toggleSelectAllQuestions() {
+        const ids = getSelectableQuestionIds();
+        const allSelected = ids.length > 0 && ids.every((id) => selectedQuestionIds.has(id));
+        ids.forEach((id) => allSelected ? selectedQuestionIds.delete(id) : selectedQuestionIds.add(id));
+        renderQuestionList();
       }
 
       function setQuestionSelectionMode(enabled) {
@@ -2798,7 +2956,7 @@
         const now = new Date().toISOString();
         featureBacklog.unshift({
           id: createId("feature"), text: cleaned, createdAt: now, updatedAt: now,
-          status: "pending", completedAt: null, revertedAt: null, comments: [], deletedComments: []
+          status: "pending", priority: "medium", completedAt: null, revertedAt: null, comments: [], deletedComments: []
         });
         saveAll();
         featureInput.value = "";
@@ -2857,11 +3015,51 @@
         renderFeatureTrash();
       }
 
+      function sortFeaturesByPriority(items) {
+        return [...items].sort((a, b) => {
+          const priorityDifference = PRIORITY_ORDER[normalizePriority(a.priority)] - PRIORITY_ORDER[normalizePriority(b.priority)];
+          if (priorityDifference !== 0) return priorityDifference;
+          return (parseDate(b.createdAt)?.getTime() || 0) - (parseDate(a.createdAt)?.getTime() || 0);
+        });
+      }
+
+      function setFeaturePriority(id, priority) {
+        featureBacklog = featureBacklog.map((item) => item.id === id
+          ? { ...item, priority: normalizePriority(priority) }
+          : item);
+        saveAll();
+        renderFeatureBacklog();
+      }
+
+      function createPriorityControls(item) {
+        const controls = document.createElement("div");
+        controls.className = "priority-controls";
+        const options = [
+          ["high", "高优先级"],
+          ["medium", "中优先级"],
+          ["low", "低优先级"]
+        ];
+        options.forEach(([priority, label]) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `priority-button priority-${priority}${normalizePriority(item.priority) === priority ? " active" : ""}`;
+          button.title = label;
+          button.setAttribute("aria-label", `设为${label}`);
+          const dot = document.createElement("span");
+          dot.className = "priority-dot";
+          button.append(dot);
+          button.addEventListener("click", () => setFeaturePriority(item.id, priority));
+          controls.append(button);
+        });
+        return controls;
+      }
+
       function createFeatureCard(item) {
         const li = document.createElement("li");
-        li.className = `feature-item${item.status === "completed" ? " completed" : ""}`;
+        li.className = `feature-item${item.status === "completed" ? " completed" : ""}${featureSelectionMode ? " selecting" : ""}`;
         const featureTags = extractTags(item.text);
         setCardAccent(li, featureTags);
+        if (!featureSelectionMode) li.append(createPriorityControls(item));
         const shell = document.createElement("div");
         shell.className = featureSelectionMode ? "selectable-card" : "feature-content";
         if (featureSelectionMode) {
@@ -2964,8 +3162,8 @@
       }
 
       function renderFeatureBacklog() {
-        const pending = featureBacklog.filter((item) => item.status !== "completed");
-        const completed = featureBacklog.filter((item) => item.status === "completed");
+        const pending = sortFeaturesByPriority(featureBacklog.filter((item) => item.status !== "completed"));
+        const completed = sortFeaturesByPriority(featureBacklog.filter((item) => item.status === "completed"));
         pendingFeatureList.replaceChildren();
         completedFeatureList.replaceChildren();
         pending.forEach((item) => pendingFeatureList.append(createFeatureCard(item)));
@@ -3009,9 +3207,26 @@
         });
       }
 
+      function getSelectableFeatureIds() {
+        const pending = sortFeaturesByPriority(featureBacklog.filter((item) => item.status !== "completed"));
+        const completed = sortFeaturesByPriority(featureBacklog.filter((item) => item.status === "completed"));
+        return [...pending, ...completed].map((item) => item.id);
+      }
+
       function updateFeatureSelectionBar() {
         featureSelectionBar.hidden = !featureSelectionMode;
         featureSelectionCount.textContent = `已选 ${selectedFeatureIds.size} 条`;
+        const ids = getSelectableFeatureIds();
+        const allSelected = ids.length > 0 && ids.every((id) => selectedFeatureIds.has(id));
+        featureToggleSelectAll.disabled = ids.length === 0;
+        featureToggleSelectAll.textContent = allSelected ? "⬜ 取消全选" : "☑️ 全选";
+      }
+
+      function toggleSelectAllFeatures() {
+        const ids = getSelectableFeatureIds();
+        const allSelected = ids.length > 0 && ids.every((id) => selectedFeatureIds.has(id));
+        ids.forEach((id) => allSelected ? selectedFeatureIds.delete(id) : selectedFeatureIds.add(id));
+        renderFeatureBacklog();
       }
 
       function setFeatureSelectionMode(enabled) {
@@ -3023,7 +3238,7 @@
 
       function buildMarkdown() {
         const selectedQuestions = questions.filter((item) => selectedQuestionIds.has(item.id));
-        const selectedFeatures = featureBacklog.filter((item) => selectedFeatureIds.has(item.id));
+        const selectedFeatures = sortFeaturesByPriority(featureBacklog.filter((item) => selectedFeatureIds.has(item.id)));
         const lines = [
           "# 我的问题盒 · 精选上下文",
           `导出时间：${formatCompactDateTime()}`,
@@ -3139,6 +3354,8 @@
           featureBacklog = sortByCreated(mergeById(featureBacklog, importedFeatures, (item) => `${item.text}__${item.createdAt}`));
           questionTrash = sortByDeleted(mergeById(questionTrash, importedQuestionTrash, (item) => `${item.text}__${item.deletedAt}`)).slice(0, QUESTION_TRASH_LIMIT);
           featureTrash = sortByDeleted(mergeById(featureTrash, importedFeatureTrash, (item) => `${item.text}__${item.deletedAt}`)).slice(0, FEATURE_TRASH_LIMIT);
+          questionVisibleLimit = QUESTION_PAGE_SIZE;
+          selectedQuestionIds.clear();
           saveAll();
           renderEverything();
           alert(`导入完成：新增问题 ${questions.length - beforeQuestions} 条，新增愿望 ${featureBacklog.length - beforeFeatures} 条。`);
@@ -3211,8 +3428,13 @@
       });
 
       questionSelectButton.addEventListener("click", () => setQuestionSelectionMode(true));
+      questionToggleSelectAll.addEventListener("click", toggleSelectAllQuestions);
       questionCancelSelection.addEventListener("click", () => setQuestionSelectionMode(false));
       questionConfirmCopy.addEventListener("click", confirmQuestionCopy);
+      questionLoadMoreButton.addEventListener("click", () => {
+        questionVisibleLimit += QUESTION_PAGE_SIZE;
+        renderQuestionList();
+      });
 
       questionTrashToggle.addEventListener("click", () => {
         const open = questionTrashPanel.hidden;
@@ -3259,6 +3481,7 @@
       });
 
       featureSelectButton.addEventListener("click", () => setFeatureSelectionMode(true));
+      featureToggleSelectAll.addEventListener("click", toggleSelectAllFeatures);
       featureCancelSelection.addEventListener("click", () => setFeatureSelectionMode(false));
       featureConfirmCopy.addEventListener("click", confirmFeatureCopy);
 
