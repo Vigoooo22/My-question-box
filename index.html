@@ -1213,6 +1213,349 @@
         transition-duration: 0.01ms !important;
       }
     }
+
+
+    /* ===== 感知层升级：视觉瘦身 + 手账化 ===== */
+
+    body {
+      display: block;
+      padding-inline: 18px;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.16)),
+        var(--background);
+    }
+
+    .app {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .journal-banner {
+      position: relative;
+      height: 120px;
+      margin: 26px 0 24px;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, #ded8cc 0%, #eee9df 52%, #d9ded5 100%);
+      border: 1px solid rgba(208, 199, 185, 0.82);
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .journal-banner::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(115deg, rgba(255, 255, 255, 0.24), transparent 45%),
+        repeating-linear-gradient(
+          0deg,
+          rgba(70, 65, 57, 0.018) 0,
+          rgba(70, 65, 57, 0.018) 1px,
+          transparent 1px,
+          transparent 4px
+        );
+      pointer-events: none;
+    }
+
+    .journal-image {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .journal-image.placeholder-image {
+      visibility: hidden;
+    }
+
+    .journal-date-strip {
+      position: absolute;
+      left: 14px;
+      bottom: 12px;
+      z-index: 1;
+      max-width: calc(100% - 28px);
+      padding: 7px 11px;
+      color: #514c44;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.58);
+      border-radius: 9px;
+      box-shadow: 0 2px 8px rgba(50, 45, 39, 0.06);
+      backdrop-filter: blur(8px);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+    }
+
+    .daily-review {
+      position: relative;
+      top: auto;
+      margin-bottom: 24px;
+      padding: 17px 19px;
+      border-top: 1px solid var(--review-border);
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.035);
+    }
+
+    .review-question {
+      font-size: clamp(15px, 2.6vw, 18px);
+    }
+
+    .header {
+      margin-bottom: 22px;
+    }
+
+    .title {
+      font-size: clamp(27px, 5vw, 37px);
+    }
+
+    .input-card {
+      padding: 14px;
+      background: rgba(255, 253, 249, 0.96);
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      backdrop-filter: none;
+    }
+
+    #questionInput {
+      min-height: 124px;
+      padding: 16px;
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    .first-question-hint {
+      margin: 10px 5px 0;
+      color: #968e82;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .tags-panel {
+      padding: 12px 14px;
+      background: rgba(250, 248, 243, 0.48);
+      border-radius: 12px;
+    }
+
+    .tag-chip {
+      color: var(--tag-text, #625d55);
+      background: var(--tag-bg, #ebe7df) !important;
+      border-color: var(--tag-border, transparent);
+    }
+
+    .tag-chip.active {
+      border-color: var(--tag-accent, #9f988d);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.58);
+    }
+
+    .question-list,
+    .feature-list {
+      gap: 0;
+    }
+
+    .question-item,
+    .feature-item {
+      --card-accent: #b7afa3;
+      position: relative;
+      margin-bottom: 16px;
+      overflow: hidden;
+      background: rgba(255, 253, 249, 0.98);
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .question-item::before,
+    .feature-item::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 3px;
+      background: var(--card-accent);
+    }
+
+    .question-item {
+      padding: 18px 19px 18px 21px;
+    }
+
+    .feature-item {
+      padding: 14px 14px 14px 17px;
+    }
+
+    .question-item:hover,
+    .feature-item:hover {
+      background: #fffdfa;
+    }
+
+    .question-item.solved,
+    .feature-item.completed {
+      background: rgba(248, 248, 243, 0.98);
+    }
+
+    .question-text {
+      font-size: 15px;
+      line-height: 1.78;
+    }
+
+    .feature-item-text {
+      font-size: 14px;
+      line-height: 1.72;
+    }
+
+    .question-tags {
+      margin-top: 11px;
+    }
+
+    .comments-section {
+      margin-top: 14px;
+      padding-top: 12px;
+    }
+
+    .deleted-comments-box {
+      padding: 0;
+      background: transparent;
+      border: 0;
+    }
+
+    .deleted-comments-toggle {
+      display: inline-flex;
+      align-items: center;
+      padding: 0;
+      color: #999084;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .deleted-comments-toggle:hover {
+      color: var(--text);
+    }
+
+    .deleted-comment-list {
+      margin-top: 8px;
+    }
+
+    .deleted-comment-actions {
+      display: flex;
+      flex: 0 0 auto;
+      gap: 6px;
+    }
+
+    .permanent-delete-button:hover {
+      color: var(--danger);
+      background: var(--danger-soft);
+      border-color: #d9bbb5;
+    }
+
+    .question-trash-section {
+      margin-top: 30px;
+      border-top: 0;
+    }
+
+    .trash-toggle-button {
+      width: auto;
+      max-width: 100%;
+      display: inline-flex;
+      justify-content: flex-start;
+      gap: 8px;
+      margin-top: 0;
+      padding: 8px 12px;
+      color: #8f877c;
+      background: rgba(226, 221, 212, 0.66);
+      border-color: transparent;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+
+    .trash-toggle-indicator {
+      color: #9c9488;
+    }
+
+    .trash-panel {
+      padding: 12px 0 0;
+    }
+
+    .trash-list {
+      gap: 9px;
+    }
+
+    .trash-item {
+      padding: 11px 13px;
+      background: rgba(236, 230, 223, 0.44);
+      border-color: rgba(207, 195, 188, 0.72);
+      box-shadow: none;
+    }
+
+    .trash-text {
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .trash-date {
+      font-size: 10px;
+    }
+
+    .feature-item .question-tags {
+      margin-top: 9px;
+    }
+
+    .music-toggle {
+      position: fixed;
+      right: 25px;
+      bottom: 88px;
+      z-index: 31;
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      color: #625d55;
+      background: rgba(255, 253, 249, 0.94);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      box-shadow: 0 4px 16px rgba(73, 64, 52, 0.12);
+      cursor: pointer;
+      font-size: 16px;
+      transition: transform 160ms ease, background 160ms ease;
+    }
+
+    .music-toggle:hover {
+      background: #fff;
+      transform: translateY(-1px);
+    }
+
+    .feature-panel {
+      background: #f7f3ec;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding-inline: 12px;
+      }
+
+      .journal-banner {
+        height: 112px;
+        margin-top: 18px;
+      }
+
+      .question-item {
+        padding: 16px 15px 16px 18px;
+      }
+
+      .music-toggle {
+        right: 16px;
+        bottom: 78px;
+        width: 38px;
+        height: 38px;
+      }
+    }
+
   </style>
 </head>
 
@@ -1224,8 +1567,18 @@
       <p id="reviewNote" class="review-note"></p>
     </aside>
 
+    <section class="journal-banner" aria-label="今日日签">
+      <img
+        id="journalImage"
+        class="journal-image"
+        src="YOUR_IMAGE_URL"
+        alt="今日日签头图"
+      />
+      <div id="journalDateText" class="journal-date-strip"></div>
+    </section>
+
     <header class="header">
-      <h1 class="title">今日问题盒 <span class="version-mark">v3.0</span></h1>
+      <h1 class="title">今日问题盒 <span class="version-mark">v3.0 · 手账版</span></h1>
       <p class="subtitle">先把问题放在这里，不必立刻回答。</p>
     </header>
 
@@ -1243,6 +1596,10 @@
         <button class="submit-button" type="submit">放进去</button>
       </div>
     </form>
+
+    <p id="firstQuestionHint" class="first-question-hint" hidden>
+      写下你的第一个问题，或从底部导入备份 ↓
+    </p>
 
     <section id="tagsPanel" class="tags-panel" aria-labelledby="tagsTitle">
       <div class="tags-panel-header">
@@ -1269,8 +1626,8 @@
       <ul id="questionList" class="question-list"></ul>
 
       <div id="emptyState" class="empty-state">
-        盒子还是空的。<br />
-        有些问题被写下来以后，就已经松动了一点。
+        盒子还是空的，但没关系。<br />
+        有些问题被写下来以后，就已经松动了一点。输入框在上面 ↑
       </div>
 
       <div id="filterEmptyState" class="empty-state" hidden>
@@ -1286,8 +1643,9 @@
         aria-expanded="false"
         aria-controls="questionTrashPanel"
       >
-        <span id="questionTrashTitle">🗑️ 回收站</span>
-        <span id="questionTrashCount">0 条</span>
+        <span id="questionTrashTitle">🗑️ 回收站 (0条)</span>
+        <span id="questionTrashIndicator" class="trash-toggle-indicator">[展开 ↓]</span>
+        <span id="questionTrashCount" hidden>0 条</span>
       </button>
 
       <div id="questionTrashPanel" class="trash-panel" hidden>
@@ -1329,6 +1687,17 @@
     📝
   </button>
 
+  <button
+    id="musicToggle"
+    class="music-toggle"
+    type="button"
+    aria-label="播放轻音乐"
+    title="播放轻音乐"
+  >
+    🔊
+  </button>
+  <audio id="journalAudio" src="YOUR_MUSIC_URL" preload="none" muted></audio>
+
   <div id="panelOverlay" class="panel-overlay" aria-hidden="true"></div>
 
   <aside id="featurePanel" class="feature-panel" aria-labelledby="featurePanelTitle" aria-hidden="true">
@@ -1350,7 +1719,7 @@
         </p>
 
         <form id="featureForm" class="feature-form">
-          <textarea id="featureInput" placeholder="还希望今日问题盒拥有怎样的功能..." aria-label="输入功能想法" maxlength="2000"></textarea>
+          <textarea id="featureInput" placeholder="还希望今日问题盒拥有怎样的功能... 可加入 #标签" aria-label="输入功能想法" maxlength="2000"></textarea>
           <div class="feature-form-footer">
             <button class="primary-button" type="submit">记录</button>
           </div>
@@ -1368,7 +1737,7 @@
             <span id="pendingFeatureCount" class="feature-section-count"></span>
           </h3>
           <ul id="pendingFeatureList" class="feature-list"></ul>
-          <div id="pendingFeatureEmpty" class="feature-empty">还没有等待实现的想法。</div>
+          <div id="pendingFeatureEmpty" class="feature-empty">还没有想法？随时记下你想改进的功能。</div>
         </section>
 
         <section class="feature-section">
@@ -1420,12 +1789,19 @@
       const reviewNote = $("reviewNote");
       const tagList = $("tagList");
       const activeFilterText = $("activeFilterText");
+      const firstQuestionHint = $("firstQuestionHint");
+      const journalImage = $("journalImage");
+      const journalDateText = $("journalDateText");
+      const musicToggle = $("musicToggle");
+      const journalAudio = $("journalAudio");
 
       const questionTrashToggle = $("questionTrashToggle");
       const questionTrashPanel = $("questionTrashPanel");
       const questionTrashList = $("questionTrashList");
       const questionTrashEmpty = $("questionTrashEmpty");
       const questionTrashCount = $("questionTrashCount");
+      const questionTrashTitle = $("questionTrashTitle");
+      const questionTrashIndicator = $("questionTrashIndicator");
 
       const exportButton = $("exportButton");
       const importButton = $("importButton");
@@ -1480,6 +1856,7 @@
       const selectedFeatureIds = new Set();
       const openQuestionComments = new Set();
       const openFeatureComments = new Set();
+      const openDeletedComments = new Set();
 
       function createId(prefix = "item") {
         if (window.crypto && typeof window.crypto.randomUUID === "function") {
@@ -1567,6 +1944,103 @@
           }
         }
         return tags;
+      }
+
+      function stripTags(text) {
+        return String(text ?? "")
+          .replace(/#[\p{L}\p{N}]+/gu, "")
+          .replace(/[ \t]{2,}/g, " ")
+          .replace(/[ \t]+\n/g, "\n")
+          .replace(/\n[ \t]+/g, "\n")
+          .trim();
+      }
+
+      const TAG_PALETTE = [
+        { bg: "#e6eef1", border: "#cfdee3", accent: "#8aaab3", text: "#536a72" },
+        { bg: "#e7eee3", border: "#d2dfcb", accent: "#91aa85", text: "#596a52" },
+        { bg: "#f3ecd8", border: "#e7dcb9", accent: "#c2a765", text: "#75663f" },
+        { bg: "#f2e5e2", border: "#e4cfca", accent: "#bd8f88", text: "#765b56" },
+        { bg: "#ebe6ef", border: "#dad1e2", accent: "#9e8aae", text: "#675b70" },
+        { bg: "#ece9e3", border: "#ddd8cf", accent: "#aaa298", text: "#68635c" }
+      ];
+
+      const TAG_FIXED_COLORS = {
+        "技术": 0,
+        "浏览器": 0,
+        "产品": 1,
+        "设计": 2,
+        "生活": 3,
+        "工作": 4,
+        "其他": 5
+      };
+
+      function hashText(value) {
+        let hash = 0;
+        for (const char of String(value)) {
+          hash = ((hash << 5) - hash + char.codePointAt(0)) | 0;
+        }
+        return Math.abs(hash);
+      }
+
+      function getTagPalette(tag) {
+        const fixedIndex = TAG_FIXED_COLORS[String(tag)];
+        const index = Number.isInteger(fixedIndex)
+          ? fixedIndex
+          : hashText(String(tag).toLocaleLowerCase()) % TAG_PALETTE.length;
+        return TAG_PALETTE[index];
+      }
+
+      function applyTagStyle(element, tag) {
+        const palette = getTagPalette(tag);
+        element.style.setProperty("--tag-bg", palette.bg);
+        element.style.setProperty("--tag-border", palette.border);
+        element.style.setProperty("--tag-accent", palette.accent);
+        element.style.setProperty("--tag-text", palette.text);
+      }
+
+      function setCardAccent(element, tags) {
+        const palette = tags && tags.length ? getTagPalette(tags[0]) : TAG_PALETTE[5];
+        element.style.setProperty("--card-accent", palette.accent);
+      }
+
+      function getJournalDateText(date = new Date()) {
+        const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+        return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 · 星期${weekdays[date.getDay()]} · 宜记录`;
+      }
+
+      function initializeJournalAtmosphere() {
+        journalDateText.textContent = getJournalDateText();
+        const imageSrc = journalImage.getAttribute("src") || "";
+        if (!imageSrc || imageSrc.includes("YOUR_IMAGE_URL")) {
+          journalImage.classList.add("placeholder-image");
+        } else {
+          journalImage.addEventListener("error", () => journalImage.classList.add("placeholder-image"));
+        }
+      }
+
+      async function toggleJournalMusic() {
+        const source = journalAudio.getAttribute("src") || "";
+        if (!source || source.includes("YOUR_MUSIC_URL")) {
+          alert("请先把代码中的 YOUR_MUSIC_URL 替换为可直接播放的音乐链接。");
+          return;
+        }
+        try {
+          if (journalAudio.paused) {
+            journalAudio.muted = false;
+            await journalAudio.play();
+            musicToggle.textContent = "⏸";
+            musicToggle.title = "暂停轻音乐";
+            musicToggle.setAttribute("aria-label", "暂停轻音乐");
+          } else {
+            journalAudio.pause();
+            musicToggle.textContent = "🔊";
+            musicToggle.title = "播放轻音乐";
+            musicToggle.setAttribute("aria-label", "播放轻音乐");
+          }
+        } catch (error) {
+          console.error("音乐播放失败：", error);
+          alert("音乐暂时无法播放，请检查链接是否允许浏览器直接访问。");
+        }
       }
 
       function normalizeTags(value, text) {
@@ -1793,7 +2267,7 @@
       function renderDailyReview() {
         if (!questions.length) {
           reviewQuestionId = null;
-          reviewQuestion.textContent = "盒子还是空的，去添加第一个问题吧";
+          reviewQuestion.textContent = "每天回顾一个问题，你会发现自己的思考在生长。先添加第一个问题吧。";
           reviewQuestion.classList.add("review-empty");
           reviewNote.textContent = "";
           return;
@@ -1805,7 +2279,7 @@
         }
         if (!question) return;
         reviewQuestion.classList.remove("review-empty");
-        reviewQuestion.textContent = `“${question.text}”`;
+        reviewQuestion.textContent = `“${stripTags(question.text)}”`;
         reviewNote.textContent = `这是你在 ${formatDate(question.createdAt)} 记录的，现在有新的想法了吗？`;
       }
 
@@ -1816,6 +2290,7 @@
         allButton.type = "button";
         allButton.className = `tag-chip all-tag-chip${activeTag === null ? " active" : ""}`;
         allButton.textContent = "🏷️ 全部";
+        applyTagStyle(allButton, "其他");
         allButton.addEventListener("click", () => {
           activeTag = null;
           renderTags();
@@ -1827,6 +2302,7 @@
           button.type = "button";
           button.className = `tag-chip${activeTag === tag ? " active" : ""}`;
           button.textContent = `#${tag}`;
+          applyTagStyle(button, tag);
           button.addEventListener("click", () => {
             activeTag = tag;
             renderTags();
@@ -1854,20 +2330,27 @@
         return timestamp;
       }
 
-      function createTagChips(tags) {
+      function createTagChips(tags, options = {}) {
+        const { filterable = true } = options;
         const wrap = document.createElement("div");
         wrap.className = "question-tags";
         tags.forEach((tag) => {
           const button = document.createElement("button");
           button.type = "button";
-          button.className = `tag-chip${activeTag === tag ? " active" : ""}`;
+          button.className = `tag-chip${filterable && activeTag === tag ? " active" : ""}`;
           button.textContent = `#${tag}`;
-          button.addEventListener("click", () => {
-            activeTag = tag;
-            renderTags();
-            renderQuestionList();
-            window.scrollTo({ top: document.querySelector(".tags-panel").offsetTop - 16, behavior: "smooth" });
-          });
+          applyTagStyle(button, tag);
+          if (filterable) {
+            button.addEventListener("click", () => {
+              activeTag = tag;
+              renderTags();
+              renderQuestionList();
+              window.scrollTo({ top: document.querySelector(".tags-panel").offsetTop - 16, behavior: "smooth" });
+            });
+          } else {
+            button.tabIndex = -1;
+            button.setAttribute("aria-hidden", "true");
+          }
           wrap.append(button);
         });
         return wrap;
@@ -1938,13 +2421,15 @@
       function renderQuestionTrash() {
         questionTrashList.replaceChildren();
         questionTrashCount.textContent = `${questionTrash.length} 条`;
+        questionTrashTitle.textContent = `🗑️ 回收站 (${questionTrash.length}条)`;
+        questionTrashIndicator.textContent = questionTrashPanel.hidden ? "[展开 ↓]" : "[收起 ↑]";
         questionTrashEmpty.hidden = questionTrash.length > 0;
         questionTrash.forEach((item) => {
           const li = document.createElement("li");
           li.className = "trash-item";
           const text = document.createElement("p");
           text.className = "trash-text";
-          text.textContent = item.text;
+          text.textContent = stripTags(item.text);
           const meta = document.createElement("div");
           meta.className = "trash-meta";
           const date = document.createElement("span");
@@ -2027,6 +2512,16 @@
             deletedComments: parent.deletedComments.filter((entry) => entry.id !== commentId)
           };
         });
+        saveAll();
+        type === "question" ? renderQuestionList() : renderFeatureBacklog();
+      }
+
+      function permanentlyDeleteComment(type, parentId, commentId) {
+        if (!confirm("彻底删除后无法恢复，确定吗？")) return;
+        updateParent(type, parentId, (parent) => ({
+          ...parent,
+          deletedComments: parent.deletedComments.filter((entry) => entry.id !== commentId)
+        }));
         saveAll();
         type === "question" ? renderQuestionList() : renderFeatureBacklog();
       }
@@ -2136,28 +2631,47 @@
         }
 
         if (parent.deletedComments.length) {
+          const deletedKey = `${type}:${parent.id}`;
+          const deletedOpen = openDeletedComments.has(deletedKey);
           const deletedBox = document.createElement("div");
           deletedBox.className = "deleted-comments-box";
-          const title = document.createElement("p");
-          title.className = "deleted-comments-title";
-          title.textContent = "最近删除评论";
-          const deletedList = document.createElement("ul");
-          deletedList.className = "deleted-comment-list";
-          parent.deletedComments.forEach((comment) => {
-            const li = document.createElement("li");
-            li.className = "deleted-comment-item";
-            const text = document.createElement("p");
-            text.className = "deleted-comment-text";
-            text.textContent = `已删除评论：${comment.text}`;
-            const restore = document.createElement("button");
-            restore.type = "button";
-            restore.className = "small-button restore-button";
-            restore.textContent = "恢复";
-            restore.addEventListener("click", () => restoreComment(type, parent.id, comment.id));
-            li.append(text, restore);
-            deletedList.append(li);
+          const deletedToggle = document.createElement("button");
+          deletedToggle.type = "button";
+          deletedToggle.className = "deleted-comments-toggle";
+          deletedToggle.textContent = `已删除 ${parent.deletedComments.length} 条评论 ${deletedOpen ? "[收起 ↑]" : "[展开 ↓]"}`;
+          deletedToggle.addEventListener("click", () => {
+            deletedOpen ? openDeletedComments.delete(deletedKey) : openDeletedComments.add(deletedKey);
+            type === "question" ? renderQuestionList() : renderFeatureBacklog();
           });
-          deletedBox.append(title, deletedList);
+          deletedBox.append(deletedToggle);
+
+          if (deletedOpen) {
+            const deletedList = document.createElement("ul");
+            deletedList.className = "deleted-comment-list";
+            parent.deletedComments.forEach((comment) => {
+              const li = document.createElement("li");
+              li.className = "deleted-comment-item";
+              const text = document.createElement("p");
+              text.className = "deleted-comment-text";
+              text.textContent = `已删除评论：${comment.text}`;
+              const actions = document.createElement("div");
+              actions.className = "deleted-comment-actions";
+              const restore = document.createElement("button");
+              restore.type = "button";
+              restore.className = "small-button restore-button";
+              restore.textContent = "恢复";
+              restore.addEventListener("click", () => restoreComment(type, parent.id, comment.id));
+              const permanentDelete = document.createElement("button");
+              permanentDelete.type = "button";
+              permanentDelete.className = "small-button permanent-delete-button";
+              permanentDelete.textContent = "🗑️ 彻底删除";
+              permanentDelete.addEventListener("click", () => permanentlyDeleteComment(type, parent.id, comment.id));
+              actions.append(restore, permanentDelete);
+              li.append(text, actions);
+              deletedList.append(li);
+            });
+            deletedBox.append(deletedList);
+          }
           body.append(deletedBox);
         }
         section.append(body);
@@ -2167,6 +2681,7 @@
       function createQuestionCard(question) {
         const li = document.createElement("li");
         li.className = `question-item${question.solved ? " solved" : ""}${editingQuestionId === question.id ? " editing" : ""}`;
+        setCardAccent(li, question.tags);
         const shell = document.createElement("div");
         shell.className = questionSelectionMode ? "selectable-card" : "question-content";
 
@@ -2213,7 +2728,7 @@
         } else {
           const text = document.createElement("p");
           text.className = "question-text";
-          text.textContent = question.text;
+          text.textContent = stripTags(question.text);
           content.append(text);
           if (question.tags.length) content.append(createTagChips(question.tags));
           const meta = document.createElement("div");
@@ -2258,6 +2773,7 @@
         const visible = getVisibleQuestions();
         list.replaceChildren();
         emptyState.hidden = questions.length > 0;
+        firstQuestionHint.hidden = questions.length > 0;
         filterEmptyState.hidden = questions.length === 0 || visible.length > 0;
         questionCount.textContent = activeTag ? `${visible.length} / ${questions.length} 个` : `${questions.length} 个`;
         visible.forEach((question) => list.append(createQuestionCard(question)));
@@ -2344,6 +2860,8 @@
       function createFeatureCard(item) {
         const li = document.createElement("li");
         li.className = `feature-item${item.status === "completed" ? " completed" : ""}`;
+        const featureTags = extractTags(item.text);
+        setCardAccent(li, featureTags);
         const shell = document.createElement("div");
         shell.className = featureSelectionMode ? "selectable-card" : "feature-content";
         if (featureSelectionMode) {
@@ -2400,7 +2918,7 @@
         } else {
           const text = document.createElement("p");
           text.className = "feature-item-text";
-          text.textContent = item.text;
+          text.textContent = stripTags(item.text);
           const date = document.createElement("p");
           date.className = "feature-item-date";
           const parts = [`记录于 ${formatTime(item.createdAt)}`];
@@ -2408,7 +2926,9 @@
           if (item.status === "completed" && item.completedAt) parts.push(`实现于 ${formatTime(item.completedAt)}`);
           if (item.revertedAt) parts.push(`最近回退于 ${formatTime(item.revertedAt)}`);
           date.textContent = parts.join(" · ");
-          content.append(text, date);
+          content.append(text);
+          if (featureTags.length) content.append(createTagChips(featureTags, { filterable: false }));
+          content.append(date);
 
           if (!featureSelectionMode) {
             const actions = document.createElement("div");
@@ -2450,8 +2970,15 @@
         completedFeatureList.replaceChildren();
         pending.forEach((item) => pendingFeatureList.append(createFeatureCard(item)));
         completed.forEach((item) => completedFeatureList.append(createFeatureCard(item)));
-        pendingFeatureEmpty.hidden = pending.length > 0;
-        completedFeatureEmpty.hidden = completed.length > 0;
+        if (featureBacklog.length === 0) {
+          pendingFeatureEmpty.textContent = "还没有想法？随时记下你想改进的功能。";
+          pendingFeatureEmpty.hidden = false;
+          completedFeatureEmpty.hidden = true;
+        } else {
+          pendingFeatureEmpty.textContent = "还没有等待实现的想法。";
+          pendingFeatureEmpty.hidden = pending.length > 0;
+          completedFeatureEmpty.hidden = completed.length > 0;
+        }
         pendingFeatureCount.textContent = `${pending.length} 条`;
         completedFeatureCount.textContent = `${completed.length} 条`;
         updateFeatureSelectionBar();
@@ -2465,7 +2992,7 @@
           li.className = "trash-item";
           const text = document.createElement("p");
           text.className = "trash-text";
-          text.textContent = item.text;
+          text.textContent = stripTags(item.text);
           const meta = document.createElement("div");
           meta.className = "trash-meta";
           const date = document.createElement("span");
@@ -2691,6 +3218,7 @@
         const open = questionTrashPanel.hidden;
         questionTrashPanel.hidden = !open;
         questionTrashToggle.setAttribute("aria-expanded", String(open));
+        questionTrashIndicator.textContent = open ? "[收起 ↑]" : "[展开 ↓]";
         if (open) renderQuestionTrash();
       });
 
@@ -2703,6 +3231,13 @@
       importFileInput.addEventListener("change", async (event) => {
         const file = event.target.files?.[0];
         if (file) await importData(file);
+      });
+
+      musicToggle.addEventListener("click", toggleJournalMusic);
+      journalAudio.addEventListener("ended", () => {
+        musicToggle.textContent = "🔊";
+        musicToggle.title = "播放轻音乐";
+        musicToggle.setAttribute("aria-label", "播放轻音乐");
       });
 
       featureFab.addEventListener("click", () => setFeaturePanelOpen(true));
@@ -2734,11 +3269,13 @@
         if (!questionTrashPanel.hidden) {
           questionTrashPanel.hidden = true;
           questionTrashToggle.setAttribute("aria-expanded", "false");
+          questionTrashIndicator.textContent = "[展开 ↓]";
           return;
         }
         if (featurePanel.classList.contains("open")) setFeaturePanelOpen(false);
       });
 
+      initializeJournalAtmosphere();
       questions = loadQuestions();
       featureBacklog = loadFeatureBacklog();
       questionTrash = loadTrash(QUESTION_TRASH_KEY, normalizeQuestion, QUESTION_TRASH_LIMIT);
